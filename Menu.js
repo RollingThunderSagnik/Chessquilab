@@ -1,7 +1,21 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
+import { useFonts } from '@use-expo/font';
+import { AppLoading } from 'expo';
+
 function Menu({navigation}) {
+
+    let [fontsLoaded] = useFonts({
+		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
+		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+    });
+
+    if (!fontsLoaded) {
+		return <AppLoading />;
+
+	} else {
+
     return(
         <View
             style={{
@@ -14,7 +28,7 @@ function Menu({navigation}) {
                 style={{
                     borderColor: 'black',
                     borderWidth: 2,
-                    paddingHorizontal: 48,
+                    paddingHorizontal: 44,
                     padding: 10,
                     margin: 10,
                     borderRadius: 20
@@ -23,7 +37,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
-                        fontWeight: 'bold'
+                        fontFamily: 'Carme'
                     }}                   
                 >
                     October Revolution
@@ -43,7 +57,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
-                        fontWeight: 'bold'
+                        fontFamily: 'Carme'
                     }}
                 >
                     Indian Independence
@@ -63,7 +77,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
-                        fontWeight: 'bold'
+                        fontFamily: 'Carme'
                     }}
                 >
                     Naxalbari
@@ -83,7 +97,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
-                        fontWeight: 'bold'
+                        fontFamily: 'Carme'
                     }}
                 >
                     Nandigram
@@ -103,7 +117,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
-                        fontWeight: 'bold'
+                        fontFamily: 'Carme'
                     }}
                 >
                     BLM
@@ -113,5 +127,6 @@ function Menu({navigation}) {
         </View>
     );
 };
+}
 
 export default Menu;

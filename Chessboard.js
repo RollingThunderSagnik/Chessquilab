@@ -219,7 +219,7 @@ class Chessboard extends Component {
       width: chsize,
       backgroundColor: '#09f',
       height: chsize,
-      alignItems : 'center',
+      alignSelf : 'center',
       }}>
       
       <ImageBackground source={require('./assets/chessboard.png')} style={styles.image}>

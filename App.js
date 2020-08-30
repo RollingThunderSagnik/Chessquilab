@@ -8,18 +8,6 @@ import RootStackScreen from './RootStackScreen';
 
 const App = () => {
     return (
-      // <>
-      // <StatusBar barStyle='light-content'/>
-      // <View style={{
-      //   flex: 1,
-      //   backgroundColor: '#000',
-      //   alignItems: 'center',
-      //   justifyContent: 'center',
-      // }}>
-      //   <Chessboard></Chessboard>
-      // </View>
-      // </>
-
       <NavigationContainer>
         <RootStackScreen />
       </NavigationContainer>
