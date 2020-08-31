@@ -219,7 +219,6 @@ class Chessboard extends Component {
       width: chsize,
       backgroundColor: '#09f',
       height: chsize,
-      alignSelf : 'center',
       }}>
       
       <ImageBackground source={require('./assets/chessboard.png')} style={styles.image}>
@@ -230,7 +229,29 @@ class Chessboard extends Component {
   }
 }
 
-export default Chessboard;
+class ChessScreen extends Component {
+  constructor(props)
+  {
+    super(props);
+  }
+
+  render()
+  {
+    return (<>
+      <StatusBar barStyle='light-content'/>
+      <View style={{
+        flex: 1,
+        backgroundColor: '#000',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Chessboard></Chessboard>
+      </View>
+      </>);
+  }
+}
+
+export default ChessScreen;
 
 const styles = StyleSheet.create({
     image: {
