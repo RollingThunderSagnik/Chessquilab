@@ -50,7 +50,7 @@ function Doorway({navigation}) {
                     margin: 10,
                     borderRadius: 20
                 }}
-                onPress={() => navigation.navigate('Menu')}
+                onPress={() => navigation.navigate('Login')}
             >
                 <Text
                     style={{
