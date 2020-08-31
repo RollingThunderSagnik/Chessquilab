@@ -21,12 +21,13 @@ function Menu({navigation}) {
             style={{
                 flex: 1,
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
+                backgroundColor: 'black'
             }}
         >
             <TouchableOpacity
                 style={{
-                    borderColor: 'black',
+                    borderColor: 'white',
                     borderWidth: 2,
                     paddingHorizontal: 44,
                     padding: 10,
@@ -37,6 +38,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
+                        color: 'white',
                         fontFamily: 'Carme'
                     }}                   
                 >
@@ -46,7 +48,7 @@ function Menu({navigation}) {
 
             <TouchableOpacity
                 style={{
-                    borderColor: 'black',
+                    borderColor: 'white',
                     borderWidth: 2,
                     paddingHorizontal: 42,
                     padding: 10,
@@ -57,6 +59,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
+                        color: 'white',
                         fontFamily: 'Carme'
                     }}
                 >
@@ -66,7 +69,7 @@ function Menu({navigation}) {
 
             <TouchableOpacity
                 style={{
-                    borderColor: 'black',
+                    borderColor: 'white',
                     borderWidth: 2,
                     paddingHorizontal: 78,
                     padding: 10,
@@ -77,6 +80,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
+                        color: 'white',
                         fontFamily: 'Carme'
                     }}
                 >
@@ -86,7 +90,7 @@ function Menu({navigation}) {
 
             <TouchableOpacity
                 style={{
-                    borderColor: 'black',
+                    borderColor: 'white',
                     borderWidth: 2,
                     paddingHorizontal: 73,
                     padding: 10,
@@ -97,6 +101,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
+                        color: 'white',
                         fontFamily: 'Carme'
                     }}
                 >
@@ -106,7 +111,7 @@ function Menu({navigation}) {
 
             <TouchableOpacity
                 style={{
-                    borderColor: 'black',
+                    borderColor: 'white',
                     borderWidth: 2,
                     paddingHorizontal: 93,
                     padding: 10,
@@ -117,6 +122,7 @@ function Menu({navigation}) {
             >
                 <Text
                     style={{
+                        color: 'white',
                         fontFamily: 'Carme'
                     }}
                 >
