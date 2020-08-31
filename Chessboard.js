@@ -7,72 +7,18 @@ const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), M
 const image = require('./assets/chessboard.png')//{ uri: "https://reactjs.org/logo-og.png" };
 const tsize = chsize/8;
 
-var positions = [
-    {id: 1,
-     x:0,
-     y:6
-    },
-    {id: 2,
-     x:1,
-     y:6
-    },
-    {id: 3,
-     x:2,
-     y:6
-    },
-    {id: 4,
-     x:3,
-     y:6
-    },
-    {id: 5,
-     x:4,
-     y:6
-    },
-    {id: 6,
-     x:5,
-     y:6
-    },
-    {id: 7,
-     x:6,
-     y:6
-    },
-    {id: 8,
-     x:7,
-     y:6
-    },
-    {id: 9,
-     x:0,
-     y:7
-    },
-    {id: 10,
-     x:1,
-     y:7
-    },
-    {id: 11,
-     x:2,
-     y:7
-    },
-    {id: 12,
-     x:3,
-     y:7
-    },
-    {id: 13,
-     x:4,
-     y:7
-    },
-    {id: 14,
-     x:5,
-     y:7
-    },
-    {id: 15,
-     x:6,
-     y:7
-    },
-    {id: 16,
-     x:7,
-     y:7
-    },
-]
+var positions = [];
+var c=0;
+for(let i=5;i<8;i++)
+  for(let j=0;j<8;j++)
+    positions.push(
+      {
+        id:c++,
+        x:j,
+        y:i
+      });
+
+
 
 class Pospos extends Component {
   state = {
@@ -138,7 +84,14 @@ class Piece extends Component {
 
   _onShowMoves(){
       EventRegister.emit('clearpos');
-      var move =[{x: this.state.left, y:this.state.top-1},{x: this.state.left, y:this.state.top-2}]
+      var validmoves = this._getValidMoves(this.state.left,this.state.top);
+      var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
+     this.setState({nextmove: moves});
+    }
+
+  _getValidMoves(left,top)
+  {
+    var move =[{x: left, y:top-1},{x: left, y:top-2}]
       var validmoves=[];
       for(let i=0;i<move.length;i++)
       {
@@ -146,27 +99,74 @@ class Piece extends Component {
         if(indx == -1)
           validmoves.push(move[i]);
       }
-      var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
-     this.setState({nextmove: moves});
-    }
+    return validmoves;
+  }
 
-    componentDidUpdate(prevProps) {
-      if (this.props.left !== prevProps.left || this.props.top !== prevProps.top) {
-         this.setState({ 
-           left : this.props.left,
-           top : this.props.top,
-           }
-         );
-       }
-    }
+  componentDidUpdate(prevProps) {
+    if (this.props.left !== prevProps.left || this.props.top !== prevProps.top) {
+        this.setState({ 
+          left : this.props.left,
+          top : this.props.top,
+          }
+        );
+      }
+  }
     
-  _Move(x,y){
-    this.setState({
-      left: x,
-      top: y,
-      nextmove : []
-    });
+  _Move(nx,ny){
+
+    positions[this.props.id] = {
+      id: this.props.id,
+      x: nx,
+      y: ny
+    };
+    EventRegister.emit('movemade');
+    EventRegister.emit('clearpos');
   }  
+
+  render()
+  {
+    return (
+      <View>
+      <TouchableWithoutFeedback onPress={this._onShowMoves}>
+      <View style={{
+        margin: 0,
+        padding: 0,
+        backgroundColor: this.state.color || '#09f',
+        width: tsize,
+        height: tsize,
+        position: "absolute",
+        left: this.state.left*tsize,
+        top: this.state.top*tsize
+      }}>
+        <Text>{this.state.left + "," + this.state.top+"\n"+this.props.id}</Text>
+      </View>
+      </TouchableWithoutFeedback>
+      {this.state.nextmove}
+      </View>
+    );
+
+  }
+}
+
+class Pawn extends Piece {
+  constructor(props){
+    super(props);
+  }
+
+  _getValidMoves(left,top)
+  {
+    var validmoves=[];
+    for(let i=1;i<3;i++)
+    {
+      var saysaysay = {x:left, y:top-i};
+      var indx = (positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))}));
+      if(indx >= 0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+    return validmoves;
+  }
 
   render()
   {
@@ -193,7 +193,308 @@ class Piece extends Component {
   }
 }
 
+class Rook extends Piece {
+  constructor(props){
+    super(props);
+  }
+
+  _getValidMoves(left,top)
+  {
+    var validmoves=[];
+
+    //going up
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left, y:top-i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going down
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left, y:top+i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going left
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left-i, y:top};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going right
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left+i, y:top};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    return validmoves;
+  }
+}
+
+class Bishop extends Piece {
+  constructor(props){
+    super(props);
+  }
+
+  _getValidMoves(left,top)
+  {
+    var validmoves=[];
+
+    //going up-left
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left-i, y:top-i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going down-left
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left-i, y:top+i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going down-right
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left+i, y:top+i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going up-right
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left+i, y:top-i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    return validmoves;
+  }
+}
+
+class Queen extends Piece {
+  constructor(props){
+    super(props);
+  }
+
+  _getValidMoves(left,top)
+  {
+
+    var validmoves=[];
+
+    //going up
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left, y:top-i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going down
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left, y:top+i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going left
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left-i, y:top};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going right
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left+i, y:top};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going up-left
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left-i, y:top-i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going down-left
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left-i, y:top+i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going down-right
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left+i, y:top+i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    //going up-right
+    for(let i=1;i<8;i++)
+    {
+      var saysaysay = {x:left+i, y:top-i};
+      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
+      else
+        validmoves.push(saysaysay);
+    }
+
+    return validmoves;
+  }
+
+  
+}
+
+class Knight extends Piece {
+  constructor(props){
+    super(props);
+  }
+
+  _getValidMoves(left,top)
+  {
+    var validmoves=[];
+    var kiws = [1,-1];
+
+    for(let i=1;i<3;i++)
+    {
+      for(let j=0;j<2;j++)
+      {
+        for(let k=0;k<2;k++)
+        {
+        var saysaysay = {x:left+kiws[k]*kiws[j]*(3-i), y:top+kiws[j]*i};
+        if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+          {}
+        else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+          {}
+        else
+          validmoves.push(saysaysay);
+        }
+      }
+    }
+
+
+    return validmoves;
+  }
+
+}
+
+class King extends Piece {
+  constructor(props){
+    super(props);
+  }
+
+  _getValidMoves(left,top)
+  {
+    var validmoves=[];
+    var kiws = [1,0,-1];
+
+    for(let i=0;i<3;i++)
+    {
+      for(let j=0;j<3;j++)
+      {
+        var saysaysay = {x:left+kiws[i], y:top+kiws[j]};
+        if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+          {}
+        else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+          {}
+        else
+          validmoves.push(saysaysay);
+      }
+    }
+
+
+    return validmoves;
+  }
+
+}
+
 class Chessboard extends Component {
+  
+  state = {
+    piecedeets : positions
+  }
 
   constructor(props)
   {
@@ -202,6 +503,9 @@ class Chessboard extends Component {
 
   componentDidMount() {
     this.listener = EventRegister.addEventListener('movemade', () => {
+      this.setState({
+        piecedeets : positions
+      });
     });
   }
 
@@ -211,7 +515,7 @@ class Chessboard extends Component {
 
   render()
   {
-    var pisces = positions.map( (item) => <Piece key={item.id} id={item.id} left={item.x} top={item.y}></Piece>);
+    var pisces = this.state.piecedeets.map( (item) => <Rook key={item.id} id={item.id} left={item.x} top={item.y}></Rook>);
 
     return (
       
@@ -221,7 +525,7 @@ class Chessboard extends Component {
       height: chsize,
       }}>
       
-      <ImageBackground source={require('./assets/chessboard.png')} style={styles.image}>
+      <ImageBackground source={image} style={styles.image}>
       {pisces}
       </ImageBackground>
     </View>
