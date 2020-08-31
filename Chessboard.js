@@ -7,6 +7,7 @@ const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), M
 const image = require('./assets/chessboard.png')//{ uri: "https://reactjs.org/logo-og.png" };
 const tsize = chsize/8;
 
+//add prole players
 var positions = [];
 var c=0;
 for(let i=5;i<8;i++)
@@ -15,8 +16,97 @@ for(let i=5;i<8;i++)
       {
         id:c++,
         x:j,
-        y:i
+        y:i,
+        type:3
+});
+
+
+
+positions= rotateBoard(positions);
+
+//add bouge players
+var c=30;
+  for(let j=0;j<8;j++)
+    positions.push(
+      {
+        id:c++,
+        x:j,
+        y:6,
+        type:0,
+        color: '#09f09f'
       });
+
+positions = [ ...positions,
+  {
+    id:c++,
+    x:0,
+    y:7,
+    type:1,
+    color: '#09f09f'
+  },
+  {
+    id:c++,
+    x:1,
+    y:7,
+    type:2,
+    color: '#09f09f'
+
+  },
+  {
+    id:c++,
+    x:2,
+    y:7,
+    type:3,
+    color: '#09f09f',
+  },
+  {
+    id:c++,
+    x:3,
+    y:7,
+    type:5,
+    color: '#09f09f',
+  },
+  {
+    id:c++,
+    x:4,
+    y:7,
+    type:4,
+    color: '#09f09f'
+  },
+  {
+    id:c++,
+    x:5,
+    y:7,
+    type:3,
+    color: '#09f09f'
+  },
+  {
+    id:c++,
+    x:6,
+    y:7,
+    type:2,
+    color: '#09f09f'
+  },
+  {
+    id:c++,
+    x:7,
+    y:7,
+    type:1,
+    color: '#09f09f'
+  },
+]
+
+positions= rotateBoard(positions);
+
+function rotateBoard(rawpositions){
+    var positions = JSON.parse(JSON.stringify(rawpositions));
+    for(let i=0;i<positions.length;i++)
+    {
+      positions[i].x = 7 - positions[i].x;
+      positions[i].y = 7 - positions[i].y;
+    }
+    return positions;
+}
 
 
 
@@ -60,7 +150,8 @@ class Piece extends Component {
   state = {
     left: this.props.left,
     top: this.props.top,
-    nextmove: []
+    nextmove: [],
+    color: this.props.color,
   }
 
   constructor(props)
@@ -87,6 +178,8 @@ class Piece extends Component {
       var validmoves = this._getValidMoves(this.state.left,this.state.top);
       var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
      this.setState({nextmove: moves});
+
+    console.log(this.state.color);
     }
 
   _getValidMoves(left,top)
@@ -113,12 +206,9 @@ class Piece extends Component {
   }
     
   _Move(nx,ny){
-
-    positions[this.props.id] = {
-      id: this.props.id,
-      x: nx,
-      y: ny
-    };
+    positions[this.props.id].x = nx;
+    positions[this.props.id].y = ny;
+    positions= rotateBoard(positions);
     EventRegister.emit('movemade');
     EventRegister.emit('clearpos');
   }  
@@ -162,35 +252,14 @@ class Pawn extends Piece {
       var indx = (positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))}));
       if(indx >= 0)
         break;
+      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+        break;
       else
         validmoves.push(saysaysay);
     }
     return validmoves;
   }
 
-  render()
-  {
-    return (
-      <View>
-      <TouchableWithoutFeedback onPress={this._onShowMoves}>
-      <View style={{
-        margin: 0,
-        padding: 0,
-        backgroundColor: '#09f',
-        width: tsize,
-        height: tsize,
-        position: "absolute",
-        left: this.state.left*tsize,
-        top: this.state.top*tsize
-      }}>
-        <Text>{this.state.left + "," + this.state.top+"\n"+this.props.id}</Text>
-      </View>
-      </TouchableWithoutFeedback>
-      {this.state.nextmove}
-      </View>
-    );
-
-  }
 }
 
 class Rook extends Piece {
@@ -515,7 +584,23 @@ class Chessboard extends Component {
 
   render()
   {
-    var pisces = this.state.piecedeets.map( (item) => <Rook key={item.id} id={item.id} left={item.x} top={item.y}></Rook>);
+  var pisces = this.state.piecedeets.map( (item) => {
+    
+    switch (item.type) {
+      case 0:
+        return <Pawn key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+      case 1:
+        return <Rook key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+      case 2:
+        return <Knight key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+      case 3:
+        return <Bishop key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+      case 4:
+        return <Queen key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+      case 5:
+        return <King key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+    }
+  });
 
     return (
       
