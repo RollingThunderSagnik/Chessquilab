@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, Platform, StyleSheet, Dimensions, StatusBar, Image } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -7,6 +7,7 @@ import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
 
 const Login = ({ navigation }) => {
+
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
 		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
@@ -54,7 +55,7 @@ const Login = ({ navigation }) => {
 
 	} else {
         return (
-            <>
+            
             <View
                 style={{
                     flex: 1,
@@ -170,7 +171,7 @@ const Login = ({ navigation }) => {
 
 
             </View>
-            </>
+            
         )
     }
 };
