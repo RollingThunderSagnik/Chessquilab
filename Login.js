@@ -164,7 +164,9 @@ const Login = ({ navigation }) => {
                     <Text style={{color: 'white', fontFamily: 'Carme'}}>
                         Don't have an account? 
                     </Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('SignUp')}
+                    >
                         <Text style={{ paddingLeft: 4, color: 'white', fontFamily: 'Carme'}}>Create Account</Text>
                     </TouchableOpacity>
                 </View>               

@@ -5,6 +5,7 @@ import Doorway from './Doorway';
 import Menu from './Menu';
 import ChessScreen from './Chessboard';
 import Login from './Login';
+import SignUp from './SignUp';
 
 const Stack = createStackNavigator();
 
@@ -12,8 +13,9 @@ const RootStackScreen = () => (
     <Stack.Navigator headerMode='none'>
         <Stack.Screen name="Doorway" component={Doorway}/>
         <Stack.Screen name="Login" component={Login}/>
-        <Stack.Screen name="Menu" component={Menu} />
-        <Stack.Screen name="Chessboard" component={ChessScreen} />
+        <Stack.Screen name="SignUp" component={SignUp}/>
+        <Stack.Screen name="Menu" component={Menu}/>
+        <Stack.Screen name="Chessboard" component={ChessScreen}/>
     </Stack.Navigator>
 );
 
