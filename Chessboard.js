@@ -8,26 +8,35 @@ const image = require('./assets/chessboard.png')//{ uri: "https://reactjs.org/lo
 const tsize = chsize/8;
 
 //add prole players
-var positions = [];
+var prolesPos = [];
 var c=0;
 for(let i=5;i<8;i++)
   for(let j=0;j<8;j++)
-    positions.push(
+    prolesPos.push(
       {
         id:c++,
         x:j,
         y:i,
-        type:3
+        type:0
 });
 
 
 
-positions= rotateBoard(positions);
+function rotateBoard(rawuserPos){
+  var userPos = JSON.parse(JSON.stringify(rawuserPos));
+  for(let i=0;i<userPos.length;i++)
+  {
+    userPos[i].x = 7 - userPos[i].x;
+    userPos[i].y = 7 - userPos[i].y;
+  }
+  return userPos;
+}
 
 //add bouge players
-var c=30;
+var bougePos = [];
+var c=0;
   for(let j=0;j<8;j++)
-    positions.push(
+  bougePos.push(
       {
         id:c++,
         x:j,
@@ -36,7 +45,7 @@ var c=30;
         color: '#09f09f'
       });
 
-positions = [ ...positions,
+      bougePos = [ ...bougePos,
   {
     id:c++,
     x:0,
@@ -96,18 +105,10 @@ positions = [ ...positions,
   },
 ]
 
-positions= rotateBoard(positions);
+var userPos = bougePos;
+var enemyPos = prolesPos;
 
-function rotateBoard(rawpositions){
-    var positions = JSON.parse(JSON.stringify(rawpositions));
-    for(let i=0;i<positions.length;i++)
-    {
-      positions[i].x = 7 - positions[i].x;
-      positions[i].y = 7 - positions[i].y;
-    }
-    return positions;
-}
-
+enemyPos = rotateBoard(enemyPos);
 
 
 class Pospos extends Component {
@@ -174,13 +175,16 @@ class Piece extends Component {
   }
 
   _onShowMoves(){
-      EventRegister.emit('clearpos');
-      var validmoves = this._getValidMoves(this.state.left,this.state.top);
-      var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
-     this.setState({nextmove: moves});
+    if(this.props.disabled)
+      return;
+    
+    EventRegister.emit('clearpos');
+    var validmoves = this._getValidMoves(this.state.left,this.state.top);
+    var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
+    this.setState({nextmove: moves});
 
     console.log(this.state.color);
-    }
+  }
 
   _getValidMoves(left,top)
   {
@@ -188,7 +192,7 @@ class Piece extends Component {
       var validmoves=[];
       for(let i=0;i<move.length;i++)
       {
-        var indx = (positions.findIndex( (piece) => {return ((piece.x==move[i].x)&&(piece.y==move[i].y))}));
+        var indx = (userPos.findIndex( (piece) => {return ((piece.x==move[i].x)&&(piece.y==move[i].y))}));
         if(indx == -1)
           validmoves.push(move[i]);
       }
@@ -206,9 +210,9 @@ class Piece extends Component {
   }
     
   _Move(nx,ny){
-    positions[this.props.id].x = nx;
-    positions[this.props.id].y = ny;
-    positions= rotateBoard(positions);
+    userPos[this.props.id].x = nx;
+    userPos[this.props.id].y = ny;
+    // userPos= rotateBoard(userPos);
     EventRegister.emit('movemade');
     EventRegister.emit('clearpos');
   }  
@@ -249,7 +253,7 @@ class Pawn extends Piece {
     for(let i=1;i<3;i++)
     {
       var saysaysay = {x:left, y:top-i};
-      var indx = (positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))}));
+      var indx = (userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))}));
       if(indx >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
@@ -275,7 +279,7 @@ class Rook extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top-i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -287,7 +291,7 @@ class Rook extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top+i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -299,7 +303,7 @@ class Rook extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -311,7 +315,7 @@ class Rook extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -336,7 +340,7 @@ class Bishop extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top-i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -348,7 +352,7 @@ class Bishop extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top+i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -360,7 +364,7 @@ class Bishop extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top+i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -372,7 +376,7 @@ class Bishop extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top-i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -382,6 +386,17 @@ class Bishop extends Piece {
 
     return validmoves;
   }
+}
+
+function checkmove(say,vmoves)
+{
+  if((userPos.findIndex( (piece) => {return ((piece.x==say.x)&&(piece.y==say.y))})) >= 0)
+    return false;
+  else if(say.x >7 || say.x <0 || say.y>7 || say.y<0)
+    return false;
+  else
+    vmoves.push(say);
+  return true;
 }
 
 class Queen extends Piece {
@@ -398,7 +413,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top-i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -410,7 +425,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top+i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -422,7 +437,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -434,7 +449,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -446,7 +461,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top-i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -458,7 +473,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top+i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -470,7 +485,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top+i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -482,7 +497,7 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top-i};
-      if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -513,7 +528,7 @@ class Knight extends Piece {
         for(let k=0;k<2;k++)
         {
         var saysaysay = {x:left+kiws[k]*kiws[j]*(3-i), y:top+kiws[j]*i};
-        if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
           {}
         else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
           {}
@@ -544,7 +559,7 @@ class King extends Piece {
       for(let j=0;j<3;j++)
       {
         var saysaysay = {x:left+kiws[i], y:top+kiws[j]};
-        if((positions.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
           {}
         else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
           {}
@@ -562,7 +577,8 @@ class King extends Piece {
 class Chessboard extends Component {
   
   state = {
-    piecedeets : positions
+    piecedeets : userPos,
+    enemydeets : enemyPos
   }
 
   constructor(props)
@@ -573,7 +589,8 @@ class Chessboard extends Component {
   componentDidMount() {
     this.listener = EventRegister.addEventListener('movemade', () => {
       this.setState({
-        piecedeets : positions
+        piecedeets : userPos,
+        enemydeets : enemyPos
       });
     });
   }
@@ -584,24 +601,39 @@ class Chessboard extends Component {
 
   render()
   {
-  var pisces = this.state.piecedeets.map( (item) => {
-    
-    switch (item.type) {
-      case 0:
-        return <Pawn key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
-      case 1:
-        return <Rook key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
-      case 2:
-        return <Knight key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
-      case 3:
-        return <Bishop key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
-      case 4:
-        return <Queen key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
-      case 5:
-        return <King key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
-    }
-  });
+    var pisces = this.state.piecedeets.map( (item) => {
+      switch (item.type) {
+        case 0:
+          return <Pawn key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+        case 1:
+          return <Rook key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+        case 2:
+          return <Knight key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+        case 3:
+          return <Bishop key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+        case 4:
+          return <Queen key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+        case 5:
+          return <King key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+      }
+    });
 
+    var enemypisces = this.state.enemydeets.map( (item) => {
+      switch (item.type) {
+        case 0:
+          return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+        case 1:
+          return <Rook disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+        case 2:
+          return <Knight disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+        case 3:
+          return <Bishop disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+        case 4:
+          return <Queen disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+        case 5:
+          return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+      }
+    });
     return (
       
     <View style={{
@@ -612,6 +644,7 @@ class Chessboard extends Component {
       
       <ImageBackground source={image} style={styles.image}>
       {pisces}
+      {enemypisces}
       </ImageBackground>
     </View>
     );
