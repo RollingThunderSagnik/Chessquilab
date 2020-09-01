@@ -105,8 +105,8 @@ var c=0;
   },
 ]
 
-var userPos = bougePos;
-var enemyPos = prolesPos;
+var userPos = prolesPos;
+var enemyPos = bougePos;
 
 enemyPos = rotateBoard(enemyPos);
 
@@ -210,6 +210,9 @@ class Piece extends Component {
   }
     
   _Move(nx,ny){
+    var indx = enemyPos.findIndex( (piece) => {return ((piece.x==nx)&&(piece.y==ny))});
+    if(indx >= 0)
+      enemyPos[indx] = {};
     userPos[this.props.id].x = nx;
     userPos[this.props.id].y = ny;
     // userPos= rotateBoard(userPos);
@@ -253,14 +256,21 @@ class Pawn extends Piece {
     for(let i=1;i<3;i++)
     {
       var saysaysay = {x:left, y:top-i};
-      var indx = (userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))}));
-      if(indx >= 0)
+      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        break;
+      else if((enemyPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
       else
         validmoves.push(saysaysay);
     }
+    var saysaysay = {x:left-1, y:top-1};
+    if((enemyPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        validmoves.push(saysaysay);
+    var saysaysay = {x:left+1, y:top-1};
+    if((enemyPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+        validmoves.push(saysaysay);
     return validmoves;
   }
 
@@ -279,48 +289,32 @@ class Rook extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top-i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going down
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top+i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going left
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      if(!checkmove(saysaysay,validmoves))
         break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
     }
 
     //going right
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     return validmoves;
@@ -340,48 +334,32 @@ class Bishop extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top-i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going down-left
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top+i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going down-right
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top+i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going up-right
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top-i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     return validmoves;
@@ -394,8 +372,12 @@ function checkmove(say,vmoves)
     return false;
   else if(say.x >7 || say.x <0 || say.y>7 || say.y<0)
     return false;
-  else
-    vmoves.push(say);
+  else if((enemyPos.findIndex( (piece) => {return ((piece.x==say.x)&&(piece.y==say.y))})) >= 0)
+    {
+      vmoves.push(say);
+      return false;
+    }
+  vmoves.push(say);
   return true;
 }
 
@@ -413,96 +395,64 @@ class Queen extends Piece {
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top-i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going down
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left, y:top+i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going left
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going right
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going up-left
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top-i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going down-left
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left-i, y:top+i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going down-right
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top+i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     //going up-right
     for(let i=1;i<8;i++)
     {
       var saysaysay = {x:left+i, y:top-i};
-      if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
-        break;
-      else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
-        break;
-      else
-        validmoves.push(saysaysay);
+      if(!checkmove(saysaysay,validmoves))
+          break;
     }
 
     return validmoves;
