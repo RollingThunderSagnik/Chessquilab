@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import {f, auth, database} from './config/config';
 
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
@@ -16,10 +17,35 @@ const Login = ({ navigation }) => {
     const [data, setData] = React.useState({
 		email: '',
 		password: '',
-		confirm_password: '',
-		secureTextEntry: true,
-		confirm_secureTextEntry: true,
+        secureTextEntry: true,
+        loggedIn: false,		
     });
+
+    const logInUser = async(email, password) => {
+		if(email != '' && password != ''){
+			try{
+				let user = await auth.signInWithEmailAndPassword(email, password);
+				console.log(user);
+				setData({
+					...data,
+					loggedIn: true
+				});
+			} catch(error){
+				console.log(error);
+				setData({
+					...data,
+					loggedIn: false
+				});
+				alert('Invalid Username or Password');
+			}
+		} else {
+			alert('Invalid Username or Password');
+		}
+    }
+    
+    if(data.loggedIn === true){
+		navigation.navigate('Menu')
+	}
     
     const textInputChange = (val) => {
 		if (val.length !== 0) {
@@ -148,7 +174,7 @@ const Login = ({ navigation }) => {
                         borderRadius: 20,
                         marginTop: 40
                     }}
-                    onPress={() => navigation.navigate('Menu')}
+                    onPress={() => logInUser(data.email, data.password)}
                 >
                     <Text
                         style={{

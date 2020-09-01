@@ -27,13 +27,14 @@ function Doorway({navigation}) {
                 backgroundColor: 'black'
             }}
         >
-        <View
+        <TouchableOpacity
             style={{
                 top: 160
             }}
+            onPress={() => navigation.navigate('Chessboard')}
         >
             <Text style={{fontFamily: 'Monoton', fontSize: 28, color: 'white'}}>CHESSQUILAB</Text>
-        </View>
+        </TouchableOpacity>
         <View
             style={{
                 flex: 1,
