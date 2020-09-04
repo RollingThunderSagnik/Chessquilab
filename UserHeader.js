@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Dimensions, Image, TouchableOpacity } from 'react-native';
+import Constants from 'expo-constants';
 
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
@@ -19,7 +20,7 @@ export default function UserHeader() {
 	} else {
 
         return (
-            <View style={{paddingTop: 14, flexDirection: 'row', justifyContent: 'space-evenly', backgroundColor: 'black', paddingVertical: 12}}>
+            <View style={{paddingTop: 22, flexDirection: 'row', justifyContent: 'space-evenly', backgroundColor: 'black', paddingVertical: 12}}>
                 <Image source={{uri: 'https://api.adorable.io/avatars/400/random.png'}} style={{padding: 4, resizeMode: 'cover', borderRadius: 50, width: 80, height: 80}} />
                 <View style={{width: width*0.5, flexDirection: 'column', justifyContent: 'space-evenly'}}>
                     <Text allowFontScaling adjustsFontSizeToFit numberOfLines={1} style={{color: 'white', fontFamily: 'Carme', fontSize: 36, justifyContent: 'space-evenly', alignSelf: 'center'}}>Hello World</Text>
