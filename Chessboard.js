@@ -9,6 +9,9 @@ var name, email, photoUrl, uid, emailVerified;
 
 if (user != null) {
   alert(user.uid);  
+  // database.ref('users/' + user.uid).set({
+  //   highscore: 1
+  // });
 }
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
@@ -229,6 +232,9 @@ class Piece extends Component {
     userPos[this.props.id].y = ny;
     // userPos= rotateBoard(userPos);
     EventRegister.emit('movemade');
+    database.ref('users/' + user.uid).set({
+      highscore: userPos
+    });
     EventRegister.emit('clearpos');
   }  
 
