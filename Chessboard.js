@@ -2,10 +2,27 @@ import React, { Component } from 'react';
 import { StatusBar, StyleSheet, Text, View, Dimensions, ImageBackground, TouchableWithoutFeedback} from 'react-native';
 import PropTypes from 'prop-types';
 import { EventRegister} from 'react-native-event-listeners';
+import {f, auth, database} from './config/config';
+
+var user = auth.currentUser;
+var name, email, photoUrl, uid, emailVerified;
+
+if (user != null) {
+  alert(user.uid);  
+}
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
-const image = require('./assets/chessboard.png')//{ uri: "https://reactjs.org/logo-og.png" };
+const image = require('./assets/chess.png');//{ uri: "https://reactjs.org/logo-og.png" };
+const imgpawn = require('./assets/pawn.png');
+const imgpawndark = require('./assets/pawn_dark.png');
+const imgrook = require('./assets/rook.png');
+const imgbishop = require('./assets/bishop.png');
+const imgknight = require('./assets/knight.png');
+const imgqueen = require('./assets/queen.png');
+const imgking = require('./assets/king.png');
+
 const tsize = chsize/8;
+
 
 //add prole players
 var prolesPos = [];
@@ -17,7 +34,8 @@ for(let i=5;i<8;i++)
         id:c++,
         x:j,
         y:i,
-        type:0
+        type:0,
+        color: 'dark'
 });
 
 
@@ -41,8 +59,7 @@ var c=0;
         id:c++,
         x:j,
         y:6,
-        type:0,
-        color: '#09f09f'
+        type:0
       });
 
       bougePos = [ ...bougePos,
@@ -51,14 +68,12 @@ var c=0;
     x:0,
     y:7,
     type:1,
-    color: '#09f09f'
   },
   {
     id:c++,
     x:1,
     y:7,
     type:2,
-    color: '#09f09f'
 
   },
   {
@@ -66,49 +81,43 @@ var c=0;
     x:2,
     y:7,
     type:3,
-    color: '#09f09f',
   },
   {
     id:c++,
     x:3,
     y:7,
     type:5,
-    color: '#09f09f',
   },
   {
     id:c++,
     x:4,
     y:7,
     type:4,
-    color: '#09f09f'
   },
   {
     id:c++,
     x:5,
     y:7,
     type:3,
-    color: '#09f09f'
   },
   {
     id:c++,
     x:6,
     y:7,
     type:2,
-    color: '#09f09f'
   },
   {
     id:c++,
     x:7,
     y:7,
     type:1,
-    color: '#09f09f'
   },
 ]
 
-var userPos = prolesPos;
-var enemyPos = bougePos;
+var userPos = bougePos;
+var enemyPos = prolesPos;
 
-enemyPos = rotateBoard(enemyPos);
+// enemyPos = rotateBoard(enemyPos);
 
 
 class Pospos extends Component {
@@ -210,9 +219,12 @@ class Piece extends Component {
   }
     
   _Move(nx,ny){
-    var indx = enemyPos.findIndex( (piece) => {return ((piece.x==nx)&&(piece.y==ny))});
+    var indx = rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==nx)&&(piece.y==ny))});
     if(indx >= 0)
+    {
+      console.log({...enemyPos[indx]});
       enemyPos[indx] = {};
+    }
     userPos[this.props.id].x = nx;
     userPos[this.props.id].y = ny;
     // userPos= rotateBoard(userPos);
@@ -225,18 +237,19 @@ class Piece extends Component {
     return (
       <View>
       <TouchableWithoutFeedback onPress={this._onShowMoves}>
-      <View style={{
+      <ImageBackground source={this.state.img} style={{
         margin: 0,
         padding: 0,
-        backgroundColor: this.state.color || '#09f',
         width: tsize,
         height: tsize,
         position: "absolute",
         left: this.state.left*tsize,
         top: this.state.top*tsize
       }}>
-        <Text>{this.state.left + "," + this.state.top+"\n"+this.props.id}</Text>
-      </View>
+        <Text>
+          {/* {this.state.left + "," + this.state.top+"\n"+this.props.id} */}
+        </Text>
+      </ImageBackground>
       </TouchableWithoutFeedback>
       {this.state.nextmove}
       </View>
@@ -248,6 +261,9 @@ class Piece extends Component {
 class Pawn extends Piece {
   constructor(props){
     super(props);
+    this.state.img =imgpawn;
+    if(this.state.color == 'dark')
+      this.state.img = imgpawndark;
   }
 
   _getValidMoves(left,top)
@@ -258,7 +274,7 @@ class Pawn extends Piece {
       var saysaysay = {x:left, y:top-i};
       if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
-      else if((enemyPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+      else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         break;
       else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
         break;
@@ -266,10 +282,10 @@ class Pawn extends Piece {
         validmoves.push(saysaysay);
     }
     var saysaysay = {x:left-1, y:top-1};
-    if((enemyPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+    if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         validmoves.push(saysaysay);
     var saysaysay = {x:left+1, y:top-1};
-    if((enemyPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+    if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
         validmoves.push(saysaysay);
     return validmoves;
   }
@@ -279,6 +295,7 @@ class Pawn extends Piece {
 class Rook extends Piece {
   constructor(props){
     super(props);
+    this.state.img =imgrook;
   }
 
   _getValidMoves(left,top)
@@ -324,6 +341,7 @@ class Rook extends Piece {
 class Bishop extends Piece {
   constructor(props){
     super(props);
+    this.state.img =imgbishop;
   }
 
   _getValidMoves(left,top)
@@ -366,13 +384,25 @@ class Bishop extends Piece {
   }
 }
 
+function wouldCheckMate(x,y){
+  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y-1))})) >= 0)
+    return true;
+  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y-1))})) >= 0)
+    return true;
+  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y+1))})) >= 0)
+    return true;
+  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y+1))})) >= 0)
+    return true;
+  return false;
+}
+
 function checkmove(say,vmoves)
 {
   if((userPos.findIndex( (piece) => {return ((piece.x==say.x)&&(piece.y==say.y))})) >= 0)
     return false;
   else if(say.x >7 || say.x <0 || say.y>7 || say.y<0)
     return false;
-  else if((enemyPos.findIndex( (piece) => {return ((piece.x==say.x)&&(piece.y==say.y))})) >= 0)
+  else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==say.x)&&(piece.y==say.y))})) >= 0)
     {
       vmoves.push(say);
       return false;
@@ -384,6 +414,7 @@ function checkmove(say,vmoves)
 class Queen extends Piece {
   constructor(props){
     super(props);
+    this.state.img =imgqueen;
   }
 
   _getValidMoves(left,top)
@@ -464,6 +495,7 @@ class Queen extends Piece {
 class Knight extends Piece {
   constructor(props){
     super(props);
+    this.state.img =imgknight;
   }
 
   _getValidMoves(left,top)
@@ -497,6 +529,7 @@ class Knight extends Piece {
 class King extends Piece {
   constructor(props){
     super(props);
+    this.state.img =imgking;
   }
 
   _getValidMoves(left,top)
@@ -513,6 +546,8 @@ class King extends Piece {
           {}
         else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
           {}
+        else if(wouldCheckMate(saysaysay.x,saysaysay.y))
+          {}
         else
           validmoves.push(saysaysay);
       }
@@ -524,11 +559,13 @@ class King extends Piece {
 
 }
 
+// console.log((new King())._getValidMoves(0,0));
+
 class Chessboard extends Component {
   
   state = {
     piecedeets : userPos,
-    enemydeets : enemyPos
+    enemydeets : rotateBoard(enemyPos)
   }
 
   constructor(props)
@@ -540,7 +577,7 @@ class Chessboard extends Component {
     this.listener = EventRegister.addEventListener('movemade', () => {
       this.setState({
         piecedeets : userPos,
-        enemydeets : enemyPos
+        enemydeets : rotateBoard(enemyPos)
       });
     });
   }
