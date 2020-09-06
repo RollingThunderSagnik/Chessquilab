@@ -3,16 +3,7 @@ import { StatusBar, StyleSheet, Text, View, Dimensions, ImageBackground, Touchab
 import PropTypes from 'prop-types';
 import { EventRegister} from 'react-native-event-listeners';
 import {f, auth, database} from './config/config';
-
-var user = auth.currentUser;
-var name, email, photoUrl, uid, emailVerified;
-
-if (user != null) {
-  alert(user.uid);  
-  // database.ref('users/' + user.uid).set({
-  //   highscore: 1
-  // });
-}
+import { AppLoading } from 'expo';    
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
 const image = require('./assets/chess.png');//{ uri: "https://reactjs.org/logo-og.png" };
@@ -26,6 +17,10 @@ const imgking = require('./assets/king.png');
 
 const tsize = chsize/8;
 
+
+var user = f.auth().currentUser;
+var userID;
+var name, email, photoUrl, uid, emailVerified;
 
 //add prole players
 var prolesPos = [];
@@ -195,7 +190,7 @@ class Piece extends Component {
     var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
     this.setState({nextmove: moves});
 
-    console.log(this.state.color);
+    // console.log(this.state.color);
   }
 
   _getValidMoves(left,top)
@@ -231,9 +226,9 @@ class Piece extends Component {
     userPos[this.props.id].x = nx;
     userPos[this.props.id].y = ny;
     // userPos= rotateBoard(userPos);
-    EventRegister.emit('movemade');
-    database.ref('users/' + user.uid).set({
-      highscore: userPos
+    // EventRegister.emit('movemade');
+    database.ref('users/' + userID).set({
+      position: userPos
     });
     EventRegister.emit('clearpos');
   }  
@@ -580,12 +575,20 @@ class Chessboard extends Component {
   }
 
   componentDidMount() {
-    this.listener = EventRegister.addEventListener('movemade', () => {
+    this.listener = EventRegister.addEventListener('movemade', (data) => {
       this.setState({
-        piecedeets : userPos,
-        enemydeets : rotateBoard(enemyPos)
+        piecedeets : data.a,
+        enemydeets : rotateBoard(data.b)
       });
     });
+    console.log(userID);
+    database.ref('users/' + user.uid).on('value', function(snapshot) {
+        // alert("haha");
+        // if(snapshot.val())
+        // console.log(snapshot.val().position);
+        userPos = snapshot.val().position;
+        EventRegister.emit('movemade', {a: userPos, b: enemyPos});
+      });
   }
 
   componentWillUnmount() {
@@ -644,14 +647,30 @@ class Chessboard extends Component {
   }
 }
 
+f.auth().onAuthStateChanged(function(ussr) {
+  if (ussr) {
+    user = ussr;
+    userID = user.uid;
+    // alert(user.uid);  
+  } else {
+    // No user is signed in.
+  }
+});
+
 class ChessScreen extends Component {
   constructor(props)
   {
     super(props);
   }
 
+  componentDidMount()
+  {
+    
+  }
+
   render()
   {
+    // if(this.state.ready)
     return (<>
       <StatusBar barStyle='light-content'/>
       <View style={{
@@ -663,6 +682,8 @@ class ChessScreen extends Component {
         <Chessboard></Chessboard>
       </View>
       </>);
+    // else
+    // return <AppLoading></AppLoading>;
   }
 }
 
