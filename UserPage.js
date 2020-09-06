@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StatusBar } from 'react-native';
+import { View, Text, StatusBar, ScrollView } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
 import UserHeader from './UserHeader';
+import GameRequestCard from './GameRequestCard';
+import {f, auth, database} from './config/config';
 
 const ActivityTab = () => {
     return (
@@ -16,8 +18,13 @@ const ActivityTab = () => {
 
 const GameRequestsTab = () => {
     return (
-        <View style={{backgroundColor: 'black', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'white'}}>Hello</Text>
+        <View style={{backgroundColor: 'black', flex: 1, alignItems: 'center'}}>
+            <ScrollView contentContainerStyle={{paddingBottom: 22, marginTop: -16}}>
+                {/*Game Requests Cards to be Mapped according to API Calls*/}
+                <GameRequestCard event='Indian Independence' from='@Hentai' />
+                <GameRequestCard event='Nandigram' from='@yoko' />
+                <GameRequestCard event='Naxalbari' from='@random' />
+            </ScrollView>
         </View>
     )
 };
@@ -30,12 +37,23 @@ const ActivePlayersTab = () => {
     )
 };
 
-export default function UserPage() {
+export default function UserPage(props) {
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
 		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
     });
+
+    const signOutUser = () => {
+        auth.signOut()
+            .then(() => {
+                console.log('Logged Out...');
+            }).catch((error) => {
+                console.log('Error: ', error);
+            });
+    
+        props.navigation.navigate('Doorway')
+    }
 
     if (!fontsLoaded) {
 		return <AppLoading />;
@@ -45,7 +63,7 @@ export default function UserPage() {
         return (
             <View style={{flex: 1}}>
                 <StatusBar backgroundColor='black' barStyle="light-content" />
-                <UserHeader/>
+                <UserHeader logout={signOutUser}/>
                 <ScrollableTabView
                     tabBarInactiveTextColor='white'
                     tabBarActiveTextColor='white'

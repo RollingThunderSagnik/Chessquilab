@@ -44,7 +44,7 @@ const Login = ({ navigation }) => {
     }
     
     if(data.loggedIn === true){
-		navigation.navigate('Menu')
+		navigation.navigate('Userpage')
 	}
     
     const textInputChange = (val) => {

@@ -5,12 +5,14 @@ import { NavigationContainer } from '@react-navigation/native';
 // import PropTypes from 'prop-types';
 // import Chessboard from './chessboard';
 import RootStackScreen from './RootStackScreen';
+import UserPage from './UserPage';
 
 const App = () => {
     return (
       <NavigationContainer>
         <RootStackScreen />
       </NavigationContainer>
+      // <UserPage/>
     );
   };
 

@@ -55,7 +55,7 @@ const SignUp = ({ navigation }) => {
     };
 
     if (data.signedUp === true){
-        navigation.navigate('Menu');
+        navigation.navigate('Userpage');
     }
 
     const textInputChange = (val) => {
