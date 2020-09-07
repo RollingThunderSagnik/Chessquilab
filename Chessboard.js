@@ -227,9 +227,9 @@ class Piece extends Component {
     userPos[this.props.id].y = ny;
     // userPos= rotateBoard(userPos);
     // EventRegister.emit('movemade');
-    database.ref('users/' + userID).set({
-      position: userPos
-    });
+    database.ref('users/' + userID + "/position").set(
+      userPos
+    );
     EventRegister.emit('clearpos');
   }  
 
@@ -651,6 +651,9 @@ f.auth().onAuthStateChanged(function(ussr) {
   if (ussr) {
     user = ussr;
     userID = user.uid;
+    database.ref('users/' + auth.currentUser.uid + '/position').set(
+      userPos
+    );
     // alert(user.uid);  
   } else {
     // No user is signed in.

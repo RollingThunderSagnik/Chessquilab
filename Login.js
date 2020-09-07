@@ -44,7 +44,14 @@ const Login = ({ navigation }) => {
     }
     
     if(data.loggedIn === true){
-		navigation.navigate('Userpage')
+        console.log("login hoa6a "+ auth.currentUser.uid);
+        database.ref('users/' + auth.currentUser.uid + '/online').set(
+            true
+          );
+        // database.ref('onlineusers/').update({
+        //     id : auth.currentUser.uid+'') : true
+        // });
+		navigation.navigate('Userpage');
 	}
     
     const textInputChange = (val) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { View, Text, StatusBar, ScrollView } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
@@ -29,13 +29,56 @@ const GameRequestsTab = () => {
     )
 };
 
-const ActivePlayersTab = () => {
-    return (
-        <View style={{backgroundColor: 'black', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'white'}}>Hello</Text>
-        </View>
-    )
-};
+// const ActivePlayersTab = () => {
+//     return (
+//         <View style={{backgroundColor: 'black', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+//             <Text style={{color: 'white'}}>Hello</Text>
+//         </View>
+//     )
+// };
+
+class ActivePlayersTab extends Component {
+  
+    state = {
+        activeUsers : []
+    }
+  
+    constructor(props)
+    {
+      super(props);
+    }
+
+    componentDidMount()
+    {
+        let onliners = [];
+        database.ref('users/').on('value', function(snapshot) {
+            var users = snapshot.val();
+            for( var user in users)
+            {
+                if(users[user].online)
+                {
+                    onliners.push(user);
+                }
+            }
+        });
+        this.setState({
+            activeUsers : onliners
+        });
+    }
+
+    render()
+    {
+        var ussrs = this.state.activeUsers.map( (id) => {return <Text>{id}</Text>});
+        return (
+            <View style={{backgroundColor: '#333', flex: 1, alignItems: 'center'}}>
+            {ussrs}
+            {/* <Text>{auth.currentUser.displayName}</Text> */}
+            </View>
+        )
+
+    }
+}
+
 
 export default function UserPage(props) {
 
