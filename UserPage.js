@@ -88,10 +88,10 @@ export default function UserPage(props) {
     });
 
     const signOutUser = () => {
+        database.ref('users/' + auth.currentUser.uid + '/').update({'online': false})
         auth.signOut()
-            .then(() => {
-                console.log('Logged Out...');
-            }).catch((error) => {
+            .then(() => {console.log('Logged Out...')})
+            .catch((error) => {
                 console.log('Error: ', error);
             });
     

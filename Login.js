@@ -45,9 +45,7 @@ const Login = ({ navigation }) => {
     
     if(data.loggedIn === true){
         console.log("login hoa6a "+ auth.currentUser.uid);
-        database.ref('users/' + auth.currentUser.uid + '/online').set(
-            true
-          );
+        database.ref('users/' + auth.currentUser.uid + '/').update({'online': true});
         // database.ref('onlineusers/').update({
         //     id : auth.currentUser.uid+'') : true
         // });
