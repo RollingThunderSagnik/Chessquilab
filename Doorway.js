@@ -1,10 +1,43 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
-
+import React, {useEffect} from 'react';
+import { View, Text, TouchableOpacity, StatusBar, BackHandler, Alert } from 'react-native';
+import {f, auth, database} from './config/config';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
 
 function Doorway({navigation}) {
+
+    f.auth().onAuthStateChanged(function(user) {
+        if(user){
+            navigation.navigate('Userpage')
+        }
+    });
+
+    const handleBackButton = () => {
+        Alert.alert(
+            'Exit Chessquilab ?',
+            '', [{
+                text: 'Cancel',
+                style: 'cancel'
+            }, {
+                text: 'OK',
+                onPress: () => BackHandler.exitApp()
+            }],
+            {
+                cancelable: false
+            }
+        );
+        return true;
+    }
+
+    useEffect(() => {
+        navigation.addListener('focus', () => {
+            BackHandler.addEventListener('hardwareBackPress', handleBackButton)
+        })
+
+        navigation.addListener('blur', () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        })
+    });
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
@@ -51,7 +84,10 @@ function Doorway({navigation}) {
                     margin: 10,
                     borderRadius: 20
                 }}
-                onPress={() => navigation.navigate('Login')}
+                onPress={() => {
+                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton),
+                    navigation.navigate('Login')                        
+                }}
             >
                 <Text
                     style={{
@@ -72,7 +108,10 @@ function Doorway({navigation}) {
                     margin: 10,
                     borderRadius: 20
                 }}
-                onPress={() => navigation.navigate('SignUp')}
+                onPress={() => {
+                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton),
+                    navigation.navigate('SignUp')
+                }}
             >
                 <Text
                     style={{

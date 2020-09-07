@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { View, Text, StatusBar, ScrollView } from 'react-native';
+import React, { Component, useEffect } from 'react';
+import { View, Text, StatusBar, ScrollView, BackHandler, Alert } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
@@ -81,6 +81,33 @@ class ActivePlayersTab extends Component {
 
 
 export default function UserPage(props) {
+
+    const handleBackButton = () => {
+        Alert.alert(
+            'Exit Chessquilab ?',
+            '', [{
+                text: 'Cancel',
+                style: 'cancel'
+            }, {
+                text: 'OK',
+                onPress: () => BackHandler.exitApp()
+            }],
+            {
+                cancelable: false
+            }
+        );
+        return true;
+    }
+
+    useEffect(() => {
+        props.navigation.addListener('focus', () => {
+            BackHandler.addEventListener('hardwareBackPress', handleBackButton)
+        })
+
+        props.navigation.addListener('blur', () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        })
+    });
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
