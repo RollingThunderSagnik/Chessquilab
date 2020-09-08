@@ -1,5 +1,5 @@
 import React, { Component, useEffect } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, Alert, _View } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, Alert, _View, TouchableOpacity } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
@@ -32,14 +32,6 @@ const GameRequestsTab = () => {
     )
 };
 
-// const ActivePlayersTab = () => {
-//     return (
-//         <View style={{backgroundColor: 'black', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-//             <Text style={{color: 'white'}}>Hello</Text>
-//         </View>
-//     )
-// };
-
 class Player extends Component {
     state = {
        id : this.props.id,
@@ -59,9 +51,11 @@ class Player extends Component {
             {/* <ion-icon name="ellipse-outline"></ion-icon> */}
 
             <View style={{height: 50, backgroundColor: '#000', flexDirection:"row", alignItems: 'center'}}>
-                <Icon name="circle" stroke-width={3} size={20} color="green" />
-                <Text style={{ marginHorizontal: 10, color: '#fff', fontSize: 13}}>{this.state.name}</Text>
-                <Feather style={{position: 'absolute', right: 0}} name="send" stroke-width={3} size={20} color="white" />
+                <Icon name="circle-o" stroke-width={3} size={10} color="white" />
+                <Text style={{ marginHorizontal: 10, color: 'white', fontFamily: 'Carme', fontSize: 18}}>{this.state.name}</Text>
+                <TouchableOpacity style={{position: 'absolute', right: 0}} >
+                    <Feather name="send" stroke-width={3} size={20} color="white" />
+                </TouchableOpacity>
             </View>
             
         </View>
@@ -106,7 +100,7 @@ class ActivePlayersTab extends Component {
             });
         return (
             <View style={{backgroundColor: '#000', flex: 1}}>
-            {ussrs}
+                {ussrs}
             </View>
         )
 
@@ -181,7 +175,8 @@ export default function UserPage(props) {
                             backgroundColor: 'black',
                             paddingTop: 22,
                             borderBottomWidth: 0,
-                            marginTop: 0                            
+                            marginTop: 0,
+                            alignSelf: 'center',
                         }}
                         tabStyles={{
                             badgeBubble: {
