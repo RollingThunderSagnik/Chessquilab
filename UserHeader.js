@@ -1,73 +1,126 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { View, Text, Dimensions, Image, TouchableOpacity } from 'react-native';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
+import {f, auth, database} from './config/config';
 
 const { width, height } = Dimensions.get('screen');
 
-export default function UserHeader(props) {
 
-    let [fontsLoaded] = useFonts({
-		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
-		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
-    });
 
-    if (!fontsLoaded) {
-		return <AppLoading />;
+class UserHeader extends Component {
+    state = {
+        uid: 0,
+        name: 'a'
+    }
 
-	} else {
+    constructor(props)
+    {
+        super(props);
+        this.state.uid = auth.currentUser.uid;
+        this.state.name = 0;
+        this.state.styles = {
+            color: '#fff',
+            marginVertical : 5,
+            fontFamily: 'Carme',
+            fontSize: 13,
+            alignSelf: 'center',
+        }
+        this.state.matches = 10;
+        this.state.wins = 10;
+        this.state.losses = 10;
+    }
 
+    _signOutUser = () => {
+        this.props.logout();
+    }
+
+    componentDidMount(){
+
+        database.ref('users/' + this.state.uid +'/name').on('value', (snapshot) => {
+            this.setState({
+                name: snapshot.val()
+            });
+            console.log(snapshot.val());
+        });
+    }
+
+    render()
+    {
         return (
-            <View 
-                style={{
-                    paddingTop: 22,
+        <>
+        <View style={{paddingTop: 22,
                     flexDirection: 'row',
                     justifyContent: 'space-evenly',
-                    backgroundColor: 'black',
-                    paddingVertical: 12
+                    alignItems: 'center',
+                    backgroundColor: '#000',
+                    paddingVertical: 12,
+                    margin: 0
                 }}
             >
-                <Image 
-                    source={{uri: 'https://api.adorable.io/avatars/400/name'}} 
+                {/* https://instagram.fccu10-1.fna.fbcdn.net/v/t51.2885-15/sh0.08/e35/s640x640/118882303_650093682314195_6731059514992743719_n.jpg?_nc_ht=instagram.fccu10-1.fna.fbcdn.net&_nc_cat=111&_nc_ohc=ReBfetCx4zoAX_Kxa8M&oh=a4bebcabee73008ea9d7a81757164a75&oe=5F7FD638 */}
+                <Image source={{uri: 'https://www.pngitem.com/pimgs/m/537-5372558_flat-man-icon-png-transparent-png.png'}} 
                     style={{
                         padding: 4,
                         resizeMode: 'cover', 
                         borderRadius: 50, 
                         width: 80, 
-                        height: 80
+                        height: 80,
+                        margin: 0
                     }} 
                 />
+
                 <View 
                     style={{
                         width: width*0.5, 
                         flexDirection: 'column', 
-                        justifyContent: 'space-evenly'
+                        // backgroundColor: '#222',
+                        // height: 150
                     }}
                 >
                     <Text 
                         allowFontScaling 
-                        adjustsFontSizeToFit 
                         numberOfLines={1} 
                         style={{
                             color: 'white', 
                             fontFamily: 'Carme', 
-                            fontSize: 36, 
-                            justifyContent: 'space-evenly', 
-                            alignSelf: 'center'
+                            fontSize: 20,
+                            alignSelf: 'center',
+                            marginBottom: 10
+                            // backgroundColor: '#444'
                         }}
                     >
-                        Hello World
+                        {this.state.name}
                     </Text>
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <TouchableOpacity style={{marginHorizontal: 2, marginVertical: 4, borderColor: 'white', borderWidth: 2, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{color: 'white',  fontFamily: 'Carme', fontSize: 13, paddingHorizontal: 8}}>Set Username</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => props.logout()} style={{marginHorizontal: 2, marginVertical: 4, borderColor: 'white', borderWidth: 2, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{color: 'white',  fontFamily: 'Carme', fontSize: 13, paddingHorizontal: 6}}>Log Out</Text>
-                    </TouchableOpacity>
+                    <View>
+                        <Text style={this.state.styles}>{"Games played: " + this.state.matches}</Text>
+                        <Text style={this.state.styles}>{"Matches won: " + this.state.wins}</Text>
+                        <Text style={this.state.styles}>{"Matches lost: " + this.state.losses}</Text>
                     </View>
                 </View>
             </View>
+        <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            backgroundColor: '#000',
+            paddingVertical: 12,
+            margin: 0
+        }}>
+            <View style={{height: 30, flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <TouchableOpacity style={{marginHorizontal: 8, marginVertical: 4, borderColor: 'white', borderWidth: 2, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{color: 'white',  fontFamily: 'Carme', fontSize: 13, paddingHorizontal: 8}}>Change Avatar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => this._signOutUser()}  style={{marginHorizontal: 8, marginVertical: 4, borderColor: 'white', borderWidth: 2, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{color: 'white',  fontFamily: 'Carme', fontSize: 13, paddingHorizontal: 6}}>Log Out</Text>
+                        </TouchableOpacity>
+            </View>
+        </View>
+        </>
         )
-    };
-};
+    }
+}
+
+{/*  */}
+
+export default UserHeader;

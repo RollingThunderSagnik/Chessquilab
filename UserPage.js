@@ -1,5 +1,5 @@
 import React, { Component, useEffect } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, Alert } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, Alert, _View } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
@@ -7,6 +7,9 @@ import { AppLoading } from 'expo';
 import UserHeader from './UserHeader';
 import GameRequestCard from './GameRequestCard';
 import {f, auth, database} from './config/config';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+import Feather from 'react-native-vector-icons/Feather';
 
 const ActivityTab = () => {
     return (
@@ -37,6 +40,35 @@ const GameRequestsTab = () => {
 //     )
 // };
 
+class Player extends Component {
+    state = {
+       id : this.props.id,
+       name : this.props.name,
+       online : this.props.online
+    }
+  
+    constructor(props)
+    {
+      super(props);
+    }
+
+    render()
+    {
+        return(
+        <View style={{ height: 100, backgroundColor: '#000', padding: 20}}>
+            {/* <ion-icon name="ellipse-outline"></ion-icon> */}
+
+            <View style={{height: 50, backgroundColor: '#000', flexDirection:"row", alignItems: 'center'}}>
+                <Icon name="circle" stroke-width={3} size={20} color="green" />
+                <Text style={{ marginHorizontal: 10, color: '#fff', fontSize: 13}}>{this.state.name}</Text>
+                <Feather style={{position: 'absolute', right: 0}} name="send" stroke-width={3} size={20} color="white" />
+            </View>
+            
+        </View>
+        );
+    }
+}
+
 class ActivePlayersTab extends Component {
   
     state = {
@@ -55,10 +87,11 @@ class ActivePlayersTab extends Component {
             var users = snapshot.val();
             for( var user in users)
             {
-                if(users[user].online)
-                {
-                    onliners.push(user);
-                }
+                if(auth.currentUser)
+                    if(user != auth.currentUser.uid){
+                    onliners.push({id: user, ...users[user]});
+                    console.log({id: user, ...users[user]});
+                    }
             }
         });
         this.setState({
@@ -68,11 +101,12 @@ class ActivePlayersTab extends Component {
 
     render()
     {
-        var ussrs = this.state.activeUsers.map( (id) => {return <Text>{id}</Text>});
+        var ussrs= this.state.activeUsers.map((user) => {
+                return <Player key={user.id} id={user.id} name={user.name} online={user.online}></Player>
+            });
         return (
-            <View style={{backgroundColor: '#333', flex: 1, alignItems: 'center'}}>
+            <View style={{backgroundColor: '#000', flex: 1}}>
             {ussrs}
-            {/* <Text>{auth.currentUser.displayName}</Text> */}
             </View>
         )
 
@@ -122,7 +156,7 @@ export default function UserPage(props) {
                 console.log('Error: ', error);
             });
     
-        props.navigation.navigate('Doorway')
+        props.navigation.navigate('Doorway');
     }
 
     if (!fontsLoaded) {
@@ -133,9 +167,9 @@ export default function UserPage(props) {
         return (
             <View style={{flex: 1}}>
                 <StatusBar backgroundColor='black' barStyle="light-content" />
-                <UserHeader logout={signOutUser}/>
+                <UserHeader logout={signOutUser} />
                 <ScrollableTabView
-                    tabBarInactiveTextColor='white'
+                    tabBarInactiveTextColor='#aaa'
                     tabBarActiveTextColor='white'
                     renderTabBar={() => <TabBar 
                         underlineColor='white' 
@@ -164,8 +198,8 @@ export default function UserPage(props) {
                     />}
                 >
                     <GameRequestsTab tabLabel={{label: 'Game Requests', badge: '8'}} label=''/>
-                    <ActivityTab tabLabel={{label: 'Activities'}} label=''/>
-                    <ActivePlayersTab tabLabel={{label: 'Active Players'}} label=''/>
+                    <ActivityTab tabLabel={{label: 'Sent Requests'}} label=''/>
+                    <ActivePlayersTab tabLabel={{label: 'Players'}} label=''/>
                 </ScrollableTabView>
             </View>
         )
