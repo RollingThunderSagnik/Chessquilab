@@ -106,7 +106,7 @@ class ActivePlayersTab extends Component {
 
     render()
     {
-        var ussrs= this.state.activeUsers.map((user) => {
+        var ussrs = this.state.activeUsers.filter(user => user.id != auth.currentUser.uid).map((user) => {
                 return <Player onchess={this.props.onchess} key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
