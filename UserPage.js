@@ -44,16 +44,25 @@ class Player extends Component {
       super(props);
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.props.online !== prevProps.online) {
+            this.setState({ 
+              online : this.props.online,
+              }
+            );
+          }
+    }
+
     render()
     {
         return(
-        <View style={{ height: 100, backgroundColor: '#000', padding: 20}}>
+        <View style={{backgroundColor: '#000', padding: 20, paddingBottom: 0}}>
             {/* <ion-icon name="ellipse-outline"></ion-icon> */}
 
             <View style={{height: 50, backgroundColor: '#000', flexDirection:"row", alignItems: 'center'}}>
-                <Icon name="circle-o" stroke-width={3} size={10} color="white" />
+                <Icon name="circle" stroke-width={3} size={15} color={this.state.online?"green":"grey"} />
                 <Text style={{ marginHorizontal: 10, color: 'white', fontFamily: 'Carme', fontSize: 18}}>{this.state.name}</Text>
-                <TouchableOpacity style={{position: 'absolute', right: 0}} >
+                <TouchableOpacity onPress={this.props.onchess} style={{position: 'absolute', right: 0}} >
                     <Feather name="send" stroke-width={3} size={20} color="white" />
                 </TouchableOpacity>
             </View>
@@ -76,27 +85,29 @@ class ActivePlayersTab extends Component {
 
     componentDidMount()
     {
+        database.ref('users').on('value', (snapshot) => {
+        // alert("haha");
         let onliners = [];
-        database.ref('users/').on('value', function(snapshot) {
             var users = snapshot.val();
             for( var user in users)
             {
-                if(auth.currentUser)
-                    if(user != auth.currentUser.uid){
+                if(auth.currentUser){
+                    // if(user != auth.currentUser.uid){
                     onliners.push({id: user, ...users[user]});
                     console.log({id: user, ...users[user]});
                     }
             }
+            this.setState({
+                activeUsers : onliners
+            });
         });
-        this.setState({
-            activeUsers : onliners
-        });
+        
     }
 
     render()
     {
         var ussrs= this.state.activeUsers.map((user) => {
-                return <Player key={user.id} id={user.id} name={user.name} online={user.online}></Player>
+                return <Player onchess={this.props.onchess} key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
             <View style={{backgroundColor: '#000', flex: 1}}>
@@ -153,6 +164,10 @@ export default function UserPage(props) {
         props.navigation.navigate('Doorway');
     }
 
+    const chaloChess = () => {
+        props.navigation.navigate('Chessboard');
+    }
+
     if (!fontsLoaded) {
 		return <AppLoading />;
 
@@ -169,7 +184,7 @@ export default function UserPage(props) {
                         underlineColor='white' 
                         tabBarTextStyle={{
                             fontFamily: 'Carme',
-                            fontSize: 14
+                            fontSize: 18
                         }}
                         tabBarStyle={{ 
                             backgroundColor: 'black',
@@ -194,7 +209,7 @@ export default function UserPage(props) {
                 >
                     <GameRequestsTab tabLabel={{label: 'Game Requests', badge: '8'}} label=''/>
                     <ActivityTab tabLabel={{label: 'Sent Requests'}} label=''/>
-                    <ActivePlayersTab tabLabel={{label: 'Players'}} label=''/>
+                    <ActivePlayersTab tabLabel={{label: 'Players'}} label='' onchess={chaloChess} />
                 </ScrollableTabView>
             </View>
         )

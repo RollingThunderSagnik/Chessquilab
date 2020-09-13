@@ -15,8 +15,8 @@ class UserHeader extends Component {
     constructor(props)
     {
         super(props);
-        this.state.uid = auth.currentUser.uid;
-        this.state.name = auth.currentUser.displayName;
+        this.state.uid = auth.currentUser?auth.currentUser.uid:"ja";
+        this.state.name = auth.currentUser?auth.currentUser.displayName:"ja";
         this.state.styles = {
             color: '#fff',
             marginVertical : 5,
@@ -33,15 +33,23 @@ class UserHeader extends Component {
         this.props.logout();
     }
 
-    // componentDidMount(){
+    componentDidMount(){
 
-    //     database.ref('users/' + this.state.uid +'/name').on('value', (snapshot) => {
-    //         this.setState({
-    //             name: snapshot.val()
-    //         });
-    //         console.log(snapshot.val());
-    //     });
-    // }
+        f.auth().onAuthStateChanged( (user)=> {
+            if (user) {
+                this.setState({
+                    uid : auth.currentUser.uid,
+                    name : auth.currentUser.displayName,        
+                });
+            }
+        });
+        // database.ref('users/' + this.state.uid +'/name').on('value', (snapshot) => {
+        //     this.setState({
+        //         name: snapshot.val()
+        //     });
+        //     console.log(snapshot.val());
+        // });
+    }
 
     render()
     {
