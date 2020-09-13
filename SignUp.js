@@ -6,6 +6,7 @@ import {f, auth, database} from './config/config';
 
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
+import { set } from 'react-native-reanimated';
 
 const SignUp = ({ navigation }) => {
 
@@ -25,34 +26,42 @@ const SignUp = ({ navigation }) => {
     });
 
     const SignUpUser = async(email, password, confirm_password, fullname) => {
-        if(password === confirm_password){
-            if (email != '' && password != ''){                
-                await auth.createUserWithEmailAndPassword(email, password)
-                .then((result) => {
-                    return result.user.updateProfile({
-                      displayName: fullname
-                    })
-                }).then(() => console.log(auth.currentUser.displayName))
-                .then(() => {database.ref('users/' + auth.currentUser.uid + '/name').set(fullname)})
-                .then(() => {database.ref('users/' + auth.currentUser.uid + '/online').set(true)})
-                .catch((error) => console.log('error logging in', error)); 
-                setData({
-					...data,
-					signedUp: true
-				});
+        if (fullname != ''){
+            if(password === confirm_password){
+                if (email != '' && password != '' && email.includes('@') && password.length >= 8 && email.includes('.')){                
+                    await auth.createUserWithEmailAndPassword(email, password)
+                    .then((result) => {
+                        return result.user.updateProfile({
+                            displayName: fullname
+                        })
+                    }).then(() => console.log(auth.currentUser.displayName))
+                    .then(() => {database.ref('users/' + auth.currentUser.uid + '/name').set(fullname)})
+                    .then(() => {database.ref('users/' + auth.currentUser.uid + '/online').set(true)})
+                    .catch((error) => console.log('error logging in', error)); 
+                    setData({
+                        ...data,
+                        signedUp: true
+                    });
+                } else {
+                    setData({
+					    ...data,
+					    signedUp: false
+                    });
+                    alert('Invalid Username or Password');
+                }
             } else {
                 setData({
-					...data,
-					signedUp: false
+                    ...data,
+                    signedUp: false
                 });
-                alert('Invalid Username or Password');
+                alert('Passwords do not match');
             }
         } else {
             setData({
                 ...data,
                 signedUp: false
             });
-            alert('Passwords do not match');
+            alert('User must add their name');
         }
     };
 

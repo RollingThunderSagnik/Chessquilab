@@ -92,10 +92,10 @@ class ActivePlayersTab extends Component {
             for( var user in users)
             {
                 if(auth.currentUser){
-                    // if(user != auth.currentUser.uid){
-                    onliners.push({id: user, ...users[user]});
-                    console.log({id: user, ...users[user]});
-                    }
+                    if(user != auth.currentUser.uid)
+                        onliners.push({id: user, ...users[user]});
+                    // console.log({id: user, ...users[user]});
+                }
             }
             this.setState({
                 activeUsers : onliners
@@ -106,7 +106,7 @@ class ActivePlayersTab extends Component {
 
     render()
     {
-        var ussrs = this.state.activeUsers.filter(user => user.id != auth.currentUser.uid).map((user) => {
+        var ussrs = this.state.activeUsers.map((user) => {
                 return <Player onchess={this.props.onchess} key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
