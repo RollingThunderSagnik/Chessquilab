@@ -1,5 +1,5 @@
 import React, { Component, useEffect } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, Alert, _View, TouchableOpacity } from 'react-native';
+import { View, Text, StatusBar, ScrollView, BackHandler, Alert, _View, TouchableOpacity, FlatList } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
@@ -20,14 +20,47 @@ const ActivityTab = () => {
 };
 
 const GameRequestsTab = () => {
+
+    const dummyEvents = [
+        {
+            id: 1,
+            photo: `https://randomuser.me/portraits/men/1.jpg`,
+            event: 'Indian Independence',
+            from: '@Hentai',
+        },
+        {
+            id: 2,
+            photo: `https://randomuser.me/portraits/men/1.jpg`,
+            event: 'Nandigram',
+            from: '@yoko',
+        },
+        {
+            id: 3,
+            photo: `https://randomuser.me/portraits/men/1.jpg`,
+            event: 'Naxalbari',
+            from: '@random',
+        }
+    ]
+
+    const renderEvents = ({item}) => {
+        console.log(item);
+        return (<GameRequestCard event={item.event} from={item.from} />);
+    }
+
     return (
         <View style={{backgroundColor: '#181818', flex: 1, alignItems: 'center'}}>
-            <ScrollView contentContainerStyle={{paddingBottom: 22, marginTop: -16}}>
+            <FlatList
+                style={{paddingBottom: 22, marginTop: -16}}
+                data={dummyEvents}
+                renderItem={renderEvents}
+                keyExtractor={(event) => event.id}
+            />
+            {/* <ScrollView contentContainerStyle={{paddingBottom: 22, marginTop: -16}}> */}
                 {/*Game Requests Cards to be Mapped according to API Calls*/}
-                <GameRequestCard event='Indian Independence' from='@Hentai' />
+                {/* <GameRequestCard event='Indian Independence' from='@Hentai' />
                 <GameRequestCard event='Nandigram' from='@yoko' />
                 <GameRequestCard event='Naxalbari' from='@random' />
-            </ScrollView>
+            </ScrollView> */}
         </View>
     )
 };
@@ -197,7 +230,7 @@ export default function UserPage(props) {
                             badgeBubble: {
                                 cusolor: 'white',
                                 paddingVertical: 8,
-                                marginTop: 1,
+                                marginTop: 4,
                                 borderRadius: 100
                             },
                             badgeText: {
