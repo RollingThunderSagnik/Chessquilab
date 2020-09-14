@@ -13,7 +13,7 @@ import Feather from 'react-native-vector-icons/Feather';
 
 const ActivityTab = () => {
     return (
-        <View style={{backgroundColor: 'black', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{backgroundColor: '#181818', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{color: 'white'}}>Hello</Text>
         </View>
     )
@@ -21,7 +21,7 @@ const ActivityTab = () => {
 
 const GameRequestsTab = () => {
     return (
-        <View style={{backgroundColor: 'black', flex: 1, alignItems: 'center'}}>
+        <View style={{backgroundColor: '#181818', flex: 1, alignItems: 'center'}}>
             <ScrollView contentContainerStyle={{paddingBottom: 22, marginTop: -16}}>
                 {/*Game Requests Cards to be Mapped according to API Calls*/}
                 <GameRequestCard event='Indian Independence' from='@Hentai' />
@@ -56,10 +56,10 @@ class Player extends Component {
     render()
     {
         return(
-        <View style={{backgroundColor: '#000', padding: 20, paddingBottom: 0}}>
+        <View style={{backgroundColor: '#181818', padding: 20, paddingBottom: 0}}>
             {/* <ion-icon name="ellipse-outline"></ion-icon> */}
 
-            <View style={{height: 50, backgroundColor: '#000', flexDirection:"row", alignItems: 'center'}}>
+            <View style={{height: 50, backgroundColor: '#181818', flexDirection:"row", alignItems: 'center'}}>
                 <Icon name="circle" stroke-width={3} size={15} color={this.state.online?"green":"grey"} />
                 <Text style={{ marginHorizontal: 10, color: 'white', fontFamily: 'Carme', fontSize: 18}}>{this.state.name}</Text>
                 <TouchableOpacity onPress={this.props.onchess} style={{position: 'absolute', right: 0}} >
@@ -110,7 +110,7 @@ class ActivePlayersTab extends Component {
                 return <Player onchess={this.props.onchess} key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
-            <View style={{backgroundColor: '#000', flex: 1}}>
+            <View style={{backgroundColor: '#181818', flex: 1}}>
                 {ussrs}
             </View>
         )
@@ -175,7 +175,7 @@ export default function UserPage(props) {
 
         return (
             <View style={{flex: 1}}>
-                <StatusBar backgroundColor='black' barStyle="light-content" />
+                <StatusBar backgroundColor='#181818' barStyle="light-content" />
                 <UserHeader logout={signOutUser} />
                 <ScrollableTabView
                     tabBarInactiveTextColor='#aaa'
@@ -187,7 +187,7 @@ export default function UserPage(props) {
                             fontSize: 18
                         }}
                         tabBarStyle={{ 
-                            backgroundColor: 'black',
+                            backgroundColor: '#181818',
                             paddingTop: 22,
                             borderBottomWidth: 0,
                             marginTop: 0,
@@ -201,7 +201,7 @@ export default function UserPage(props) {
                                 borderRadius: 100
                             },
                             badgeText: {
-                                color: 'black'
+                                color: '#181818'
                             }
 
                         }}
