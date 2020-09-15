@@ -141,7 +141,7 @@ const SignUp = ({ navigation }) => {
                     />
                     <TextInput
                         placeholder='Full Name'
-                        placeholderTextColor = "#fff"
+                        placeholderTextColor = "#ccc"
                         style={{
                             color: 'white',
                             fontFamily: 'Carme',
@@ -167,7 +167,7 @@ const SignUp = ({ navigation }) => {
                     />
                     <TextInput                        
                         placeholder='Email Address'
-                        placeholderTextColor = "#fff"
+                        placeholderTextColor = "#ccc"
                         style={{
                             color: 'white',
                             fontFamily: 'Carme',
@@ -193,7 +193,7 @@ const SignUp = ({ navigation }) => {
                     />                    
                     <TextInput
                         placeholder='Password'
-                        placeholderTextColor = "#fff"
+                        placeholderTextColor = "#ccc"
                         secureTextEntry={data.secureTextEntry ? true : false}
                         style={{
                             color: 'white',
@@ -238,7 +238,7 @@ const SignUp = ({ navigation }) => {
                     />                    
                     <TextInput
                         placeholder='Confirm Password'
-                        placeholderTextColor = "#fff"
+                        placeholderTextColor = "#ccc"
                         secureTextEntry={data.confirm_secureTextEntry ? true : false}
                         style={{
                             color: 'white',

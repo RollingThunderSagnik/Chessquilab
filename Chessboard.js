@@ -5,6 +5,7 @@ import { EventRegister} from 'react-native-event-listeners';
 import {f, auth, database} from './config/config';
 import { AppLoading } from 'expo';    
 
+
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
 const image = require('./assets/chess.png');//{ uri: "https://reactjs.org/logo-og.png" };
 const imgpawn = require('./assets/pawn.png');
@@ -17,26 +18,9 @@ const imgking = require('./assets/king.png');
 
 const tsize = chsize/8;
 
-
 var user = f.auth().currentUser;
 var userID;
 var name, email, photoUrl, uid, emailVerified;
-
-//add prole players
-var prolesPos = [];
-var c=0;
-for(let i=5;i<8;i++)
-  for(let j=0;j<8;j++)
-    prolesPos.push(
-      {
-        id:c++,
-        x:j,
-        y:i,
-        type:0,
-        color: 'dark'
-});
-
-
 
 function rotateBoard(rawuserPos){
   var userPos = JSON.parse(JSON.stringify(rawuserPos));
@@ -48,72 +32,9 @@ function rotateBoard(rawuserPos){
   return userPos;
 }
 
-//add bouge players
-var bougePos = [];
-var c=0;
-  for(let j=0;j<8;j++)
-  bougePos.push(
-      {
-        id:c++,
-        x:j,
-        y:6,
-        type:0
-      });
-
-      bougePos = [ ...bougePos,
-  {
-    id:c++,
-    x:0,
-    y:7,
-    type:1,
-  },
-  {
-    id:c++,
-    x:1,
-    y:7,
-    type:2,
-
-  },
-  {
-    id:c++,
-    x:2,
-    y:7,
-    type:3,
-  },
-  {
-    id:c++,
-    x:3,
-    y:7,
-    type:5,
-  },
-  {
-    id:c++,
-    x:4,
-    y:7,
-    type:4,
-  },
-  {
-    id:c++,
-    x:5,
-    y:7,
-    type:3,
-  },
-  {
-    id:c++,
-    x:6,
-    y:7,
-    type:2,
-  },
-  {
-    id:c++,
-    x:7,
-    y:7,
-    type:1,
-  },
-]
-
-var userPos = bougePos;
-var enemyPos = prolesPos;
+import {prolePos, boujPos} from './freshPositions';
+var userPos = boujPos;
+var enemyPos = prolePos;
 
 // enemyPos = rotateBoard(enemyPos);
 

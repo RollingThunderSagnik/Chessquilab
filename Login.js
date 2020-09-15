@@ -107,6 +107,7 @@ const Login = ({ navigation }) => {
                     <TextInput
                         
                         placeholder='Email Address'
+                        placeholderTextColor = "#ccc"
                         style={{
                             color: 'white',
                             fontFamily: 'Carme',
@@ -133,6 +134,7 @@ const Login = ({ navigation }) => {
                     
                     <TextInput
                         placeholder='Password'
+                        placeholderTextColor = "#ccc"
                         secureTextEntry={data.secureTextEntry ? true : false}
                         style={{
                             color: 'white',

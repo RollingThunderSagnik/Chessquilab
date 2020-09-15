@@ -8,6 +8,8 @@ import UserHeader from './UserHeader';
 import GameRequestCard from './GameRequestCard';
 import {f, auth, database} from './config/config';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Constants from "expo-constants";
+import { Platform, StyleSheet } from 'react-native';
 
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -198,7 +200,7 @@ export default function UserPage(props) {
     }
 
     const chaloChess = () => {
-        props.navigation.navigate('Chessboard');
+        props.navigation.navigate('MenuModal');
     }
 
     if (!fontsLoaded) {
@@ -207,8 +209,12 @@ export default function UserPage(props) {
 	} else {
 
         return (
-            <View style={{flex: 1}}>
-                <StatusBar backgroundColor='#181818' barStyle="light-content" />
+            <>
+            <StatusBar backgroundColor='#181818' barStyle={ "light-content"}/>
+            <View style={{flex: 1, 
+            backgroundColor: '#181818',
+            paddingTop: Platform.OS === 'ios' ? Constants.statusBarHeight:0
+            }}>
                 <UserHeader logout={signOutUser} />
                 <ScrollableTabView
                     tabBarInactiveTextColor='#aaa'
@@ -245,6 +251,7 @@ export default function UserPage(props) {
                     <ActivePlayersTab tabLabel={{label: 'Players'}} label='' onchess={chaloChess} />
                 </ScrollableTabView>
             </View>
+            </>
         )
     }
 };

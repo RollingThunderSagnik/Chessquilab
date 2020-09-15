@@ -8,6 +8,7 @@ import Login from './Login';
 import SignUp from './SignUp';
 import Lorem from './Temporary';
 import UserPage from './UserPage';
+import MenuModal from './MenuModal';
 
 const Stack = createStackNavigator();
 
@@ -17,7 +18,7 @@ const RootStackScreen = () => (
         <Stack.Screen name="Login" component={Login}/>
         <Stack.Screen name="SignUp" component={SignUp}/>
         <Stack.Screen name="Menu" component={Menu}/>
-        <Stack.Screen name="Lorem" component={Lorem}/>
+        <Stack.Screen name="MenuModal" component={MenuModal}/>
         <Stack.Screen name="Userpage" component={UserPage}/>
         <Stack.Screen name="Chessboard" component={ChessScreen}/>
     </Stack.Navigator>
