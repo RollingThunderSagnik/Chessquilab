@@ -6,7 +6,7 @@ import {f, auth, database} from './config/config';
 
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
-import { set } from 'react-native-reanimated';
+import Popover from 'react-native-popover-view';
 
 const SignUp = ({ navigation }) => {
 
@@ -22,7 +22,9 @@ const SignUp = ({ navigation }) => {
         confirm_password: '',
         secureTextEntry: true,
         confirm_secureTextEntry: true,
-        signedUp: false
+        signedUp: false,
+        showPopover: false,
+        error: 'Invalid Input'
     });
 
     const SignUpUser = async(email, password, confirm_password, fullname) => {
@@ -45,23 +47,29 @@ const SignUp = ({ navigation }) => {
                 } else {
                     setData({
 					    ...data,
-					    signedUp: false
+                        signedUp: false,
+                        showPopover: true,
+                        error: 'Invalid Username or Password'
                     });
-                    alert('Invalid Username or Password');
+                    //alert('Invalid Username or Password');
                 }
             } else {
                 setData({
                     ...data,
-                    signedUp: false
+                    signedUp: false,
+                    showPopover: true,
+                    error: 'Passwords do not match'
                 });
-                alert('Passwords do not match');
+                //alert('Passwords do not match');
             }
         } else {
             setData({
                 ...data,
-                signedUp: false
+                signedUp: false,
+                showPopover: true,
+                error: 'User must add their name'
             });
-            alert('User must add their name');
+            //alert('User must add their name');
         }
     };
 
@@ -293,6 +301,23 @@ const SignUp = ({ navigation }) => {
                     >
                         Sign Up
                     </Text>
+                    <Popover 
+                        placement={"center"}
+                        isVisible={data.showPopover} 
+                        popoverStyle={{
+                            padding: 40,
+                            borderRadius: 22,
+                            backgroundColor: 'white',
+                        }}
+                        backgroundStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.9)'
+                        }}
+                        onRequestClose={() => setData({...data, showPopover: false})}
+                    >
+                        <Text style={{fontFamily: 'Carme'}}>
+                            {data.error}
+                        </Text>
+                    </Popover>
                 </TouchableOpacity>
 
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
