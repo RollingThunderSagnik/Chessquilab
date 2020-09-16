@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
-import { StatusBar, StyleSheet, Text, View, Dimensions, ImageBackground, TouchableWithoutFeedback} from 'react-native';
+import { StatusBar, Text, View, Dimensions,  TouchableOpacity} from 'react-native';
 import { EventRegister} from 'react-native-event-listeners';
 import {f, auth, database} from './config/config';
 import {prolePos, boujPos} from './freshPositions';
 import {Picker} from '@react-native-community/picker';
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
- 
+import { Select, SelectItem} from '@ui-kitten/components';
+
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+import Feather from 'react-native-vector-icons/Feather';
+// import Text as Sext from '@ui-kitten/components';
+// import { Button as UIButton, Text as UIText } from '@ui-kitten/components';
+
+
+
 var userPos = boujPos;
 var enemyPos = prolePos;
 
@@ -21,9 +30,12 @@ class MenuModal extends Component {
   constructor(props)
   {
     super(props);
-    this.state.player1 = 'Morrissey';
-    this.state.player2 = 'Bowie';
-    this.state.scene = 'nxl';
+    this.state.player1 = auth.currentUser;
+    this.state.player2 = this.props.opponent || ' ';
+    this.state.roleprole = 'nxl';
+    this.state.styles = {
+      text : {color: '#fff', fontFamily: 'Carme', fontSize: 18}
+    }
   }
 
   componentDidMount()
@@ -35,23 +47,23 @@ class MenuModal extends Component {
   {
     // if(this.state.ready)
     var radio_props = [
-      {label: 'param1', value: 0 },
-      {label: 'param3', value: 1 }
+      {label: this.state.player1.displayName, value: this.state.player1.uid },
+      {label: this.state.player2.name, value: this.state.player2.uid }
     ];
-    return (<>
-      <StatusBar barStyle='light-content'/>
-      <View style={{
-        flex: 1,
-        backgroundColor: '#000',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+    
+    return (
+     <>
+      
+        {/* modal */}
           <View 
-          style={{ 
+          style={{
+            // alignSelf: 'center',
+            // position: 'absolute',
             width: sWidth/1.5,
-            height: sHeight/3,
+            // height: sHeight/3,
             borderRadius: 8,
-            backgroundColor: '#333'
+            backgroundColor: '#333',
+            paddingBottom: 10
             }}>
                {/* title */}
                 <View 
@@ -65,27 +77,67 @@ class MenuModal extends Component {
                 borderTopEndRadius: 8,
                 borderTopStartRadius: 8,
                 }}>
-                    <Text style={{color: '#fff', fontFamily: 'Carme', fontSize: 18}}>Challenge {this.state.player2}</Text>
+                    <Text style={this.state.styles.text}>SEND GAME REQUEST</Text>
+                    <TouchableOpacity style={{position:'absolute',right:0}} onPress={()=>{this.setState({visible:false})}}>
+                    <Feather style={{padding:10}} size={18} color='white' name='x'></Feather>
+                    </TouchableOpacity>
                 </View>
-                <View style={{marginHorizontal: 20}}>
-                  <RadioForm
-                    radio_props={radio_props}
-                    initial={0}
+
+                <View 
+                style={{
+                  marginHorizontal: 20,
+                  // alignSelf:'center',
+                  paddingBottom:10,
+                  }}>
+                    {/* <Icon name='circle' color='#a20' size={15}></Icon> */}
+                <Text style={{...this.state.styles.text, fontSize:13}}>CHOOSE PROLE</Text>
+                </View>
+
+
+                  
+                <RadioForm radio_props={radio_props} initial={0}
+                    style={{
+                      marginHorizontal: 20,
+                      // alignSelf:'center'
+                      }}
+                    formHorizontal={false}
                     buttonSize={10}
+                    buttonOuterSize={15}
                     formHorizontal={true}
                     selectedButtonColor='#fff'
-                    buttonColor='#fff'
+                    buttonColor='#aaa'
                     selectedLabelColor='#fff'
-                    labelColor='#fff'
-                    labelWrapStyle={{marginRight: 10}}
-                    buttonWrapStyle={{marginLeft: 10}}
-                    onPress={(value) => {this.setState({value:value})}}
-                  />
-                </View>
+                    labelColor='#aaa'
+                    labelStyle={{
+                      fontSize: 15,
+                      marginRight: 10}}
+                      onPress={(value) => {this.setState({roleprole:value})}}    
+                />    
+               <TouchableOpacity style={{alignSelf:'center'}}
+                    onPress={()=>{}}
+                >
+                  <View style={{
+                        borderColor: 'white',
+                        borderWidth: 1,
+                        paddingHorizontal: 40,
+                        padding: 8,
+                        margin: 10,
+                        borderRadius: 20,
+                        // marginTop: 40
+                    }}>
+                    <Text
+                        style={{
+                            color: 'white',
+                            fontFamily: 'Carme'
+                        }}
+                    >
+                        challenge!
+                    </Text>
+                    </View>
+                </TouchableOpacity>
           </View>
-      </View>
-      </>);
-  }
+      </>);   
+}
 }
 
 export default MenuModal;

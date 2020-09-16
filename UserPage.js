@@ -1,5 +1,5 @@
 import React, { Component, useEffect } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, Alert, _View, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StatusBar, Dimensions, ScrollView, BackHandler, Alert, _View, TouchableOpacity, FlatList } from 'react-native';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
@@ -10,6 +10,8 @@ import {f, auth, database} from './config/config';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from "expo-constants";
 import { Platform, StyleSheet } from 'react-native';
+import MenuModal from './MenuModal';
+import { EventRegister} from 'react-native-event-listeners';
 
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -77,6 +79,7 @@ class Player extends Component {
     constructor(props)
     {
       super(props);
+    this._modal = this._modal.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -87,7 +90,12 @@ class Player extends Component {
             );
           }
     }
+    _modal()
+    {
+        let uid = this.state.id;
+       EventRegister.emit('modDe', uid);
 
+    }
     render()
     {
         return(
@@ -97,13 +105,72 @@ class Player extends Component {
             <View style={{height: 50, backgroundColor: '#181818', flexDirection:"row", alignItems: 'center'}}>
                 <Icon name="circle" stroke-width={3} size={15} color={this.state.online?"green":"grey"} />
                 <Text style={{ marginHorizontal: 10, color: 'white', fontFamily: 'Carme', fontSize: 18}}>{this.state.name}</Text>
-                <TouchableOpacity onPress={this.props.onchess} style={{position: 'absolute', right: 0}} >
+                <TouchableOpacity onPress={this._modal} style={{position: 'absolute', right: 0}} >
                     <Feather name="send" stroke-width={3} size={20} color="white" />
                 </TouchableOpacity>
             </View>
             
         </View>
         );
+    }
+}
+
+class ShowModal extends Component {
+    state = {
+        visible : true
+    }
+    constructor(props)
+    {
+    super(props);
+    this.state.visible = false;    
+    }
+
+    componentDidMount() {
+    this.listener = EventRegister.addEventListener('modDe', (data) => {
+        let oppName;
+        database.ref('users/' + data).once('value').then( (snapshot) => {
+            oppName = (snapshot.val().name) || 'Anonymous';
+        }).then(()=>{
+            alert(oppName);
+        this.setState({
+            opponent: {
+                uid : data,
+                name : oppName
+            },
+            visible : true
+        });
+        });        
+    });
+    }
+
+    componentWillUnmount() {
+    EventRegister.removeEventListener(this.listener);
+    }
+
+    render()
+    {   
+
+        const sWidth = Dimensions.get('window').width;
+        const sHeight = Dimensions.get('window').height;
+        if(this.state.visible)
+        {
+        return (
+        <View 
+            style={{
+            position:"absolute",
+            width: sWidth,
+            zIndex: 99,
+            height: sHeight,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            flex:1,
+            alignItems:'center',
+            justifyContent:'center'
+            }}>
+        <MenuModal opponent={this.state.opponent}></MenuModal>
+        </View>
+        );
+        }
+        else return <></>
     }
 }
 
@@ -136,7 +203,6 @@ class ActivePlayersTab extends Component {
                 activeUsers : onliners
             });
         });
-        
     }
 
     render()
@@ -200,7 +266,7 @@ export default function UserPage(props) {
     }
 
     const chaloChess = () => {
-        props.navigation.navigate('MenuModal');
+        // props.navigation.navigate('MenuModal');
     }
 
     if (!fontsLoaded) {
@@ -211,6 +277,7 @@ export default function UserPage(props) {
         return (
             <>
             <StatusBar backgroundColor='#181818' barStyle={ "light-content"}/>
+            <ShowModal></ShowModal>
             <View style={{flex: 1, 
             backgroundColor: '#181818',
             paddingTop: Platform.OS === 'ios' ? Constants.statusBarHeight:0
