@@ -12,7 +12,7 @@ import Constants from "expo-constants";
 import { Platform, StyleSheet } from 'react-native';
 import MenuModal from './MenuModal';
 import { EventRegister} from 'react-native-event-listeners';
-
+import Popover from 'react-native-popover-view';
 import Feather from 'react-native-vector-icons/Feather';
 
 const ActivityTab = () => {
@@ -131,7 +131,7 @@ class ShowModal extends Component {
         database.ref('users/' + data).once('value').then( (snapshot) => {
             oppName = (snapshot.val().name) || 'Anonymous';
         }).then(()=>{
-            alert(oppName);
+            // alert(oppName);
         this.setState({
             opponent: {
                 uid : data,
@@ -152,25 +152,29 @@ class ShowModal extends Component {
 
         const sWidth = Dimensions.get('window').width;
         const sHeight = Dimensions.get('window').height;
-        if(this.state.visible)
-        {
+        // if(this.state.visible)
+        // {
         return (
-        <View 
-            style={{
-            position:"absolute",
-            width: sWidth,
-            zIndex: 99,
-            height: sHeight,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            flex:1,
-            alignItems:'center',
-            justifyContent:'center'
-            }}>
-        <MenuModal opponent={this.state.opponent}></MenuModal>
-        </View>
+        // <MenuModal opponent={this.state.opponent}></MenuModal>
+        <Popover 
+                        placement={"center"}
+                        isVisible={this.state.visible} 
+                        popoverStyle={{
+                            padding: 20,
+                            paddingBottom: 10,
+                            borderRadius: 22,
+                            backgroundColor: 'white',
+                        }}
+                        backgroundStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.5)'
+                        }}
+                        onRequestClose={() => this.setState({visible:false})}
+                    >
+                        <MenuModal opponent={this.state.opponent}></MenuModal>
+                    </Popover>
         );
-        }
-        else return <></>
+        // }
+        // else return <></>
     }
 }
 
