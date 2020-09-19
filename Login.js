@@ -6,19 +6,23 @@ import {f, auth, database} from './config/config';
 
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
+import Popover from 'react-native-popover-view';
 
 const Login = ({ navigation }) => {
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
-		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Helvetica-Light': require('./assets/fonts/HelveticaNeue-Light.ttf')
     });
 
     const [data, setData] = React.useState({
 		email: '',
 		password: '',
         secureTextEntry: true,
-        loggedIn: false,		
+        loggedIn: false,	
+        showPopover: false,
+        error: 'Invalid Username or Password'	
     });
 
     const logInUser = async(email, password) => {
@@ -34,13 +38,18 @@ const Login = ({ navigation }) => {
 				console.log(error);
 				setData({
 					...data,
-					loggedIn: false
+                    loggedIn: false,
+                    showPopover: true
 				});
-				alert('Invalid Username or Password');
+				
 			}
 		} else {
-			alert('Invalid Username or Password');
-		}
+            setData({
+                ...data,
+                loggedIn: false,
+                showPopover: true
+            });
+        }
     }
     
     if(data.loggedIn === true){
@@ -191,6 +200,23 @@ const Login = ({ navigation }) => {
                     >
                         Login
                     </Text>
+                    <Popover 
+                        placement={"center"}
+                        isVisible={data.showPopover} 
+                        popoverStyle={{
+                            padding: 40,
+                            borderRadius: 22,
+                            backgroundColor: 'white',
+                        }}
+                        backgroundStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.9)'
+                        }}
+                        onRequestClose={() => setData({...data, showPopover: false})}
+                    >
+                        <Text style={{fontFamily: 'Carme'}}>
+                            {data.error}
+                        </Text>
+                    </Popover>
                 </TouchableOpacity>
 
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>

@@ -55,9 +55,9 @@ class ActivityTab extends Component {
             return <SentGameCard key={req.id} id={req.id} context={req.context} from={req.from} to={req.to} prole={req.prole}/>
         });
         return (
-            <View style={{backgroundColor: '#181818', flex: 1}}>
+            <ScrollView style={{backgroundColor: '#181818', flex: 1}}>
                 {receivedReqs}
-            </View>
+            </ScrollView>
         )
     }
 }
@@ -102,9 +102,9 @@ class GameRequestsTab extends Component {
             return <ReceivedGameCard key={req.id} id={req.id} context={req.context} from={req.from} to={req.to} prole={req.prole}/>
         });
         return (
-            <View style={{backgroundColor: '#181818', flex: 1}}>
+            <ScrollView style={{backgroundColor: '#181818', flex: 1}}>
                 {receivedReqs}
-            </View>
+            </ScrollView>
         )
     }
 }
@@ -295,7 +295,8 @@ export default function UserPage(props) {
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
-		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Helvetica-Light': require('./assets/fonts/HelveticaNeue-Light.ttf'),
     });
 
     const signOutUser = () => {

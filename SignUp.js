@@ -3,16 +3,16 @@ import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import {f, auth, database} from './config/config';
-
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
-import Popover from 'react-native-popover-view';
+import Popover, { PopoverMode, PopoverPlacement } from 'react-native-popover-view';
 
 const SignUp = ({ navigation }) => {
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
-		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Helvetica-Light': require('./assets/fonts/HelveticaNeue-Light.ttf')
     });
 
     const [data, setData] = useState({
@@ -23,7 +23,9 @@ const SignUp = ({ navigation }) => {
         secureTextEntry: true,
         confirm_secureTextEntry: true,
         signedUp: false,
-        showPopover: false,
+        showPopoverFullName: false,
+        showPopoverEmail: false,
+        showPopoverConfirmPassword: false,
         error: 'Invalid Input'
     });
 
@@ -48,7 +50,7 @@ const SignUp = ({ navigation }) => {
                     setData({
 					    ...data,
                         signedUp: false,
-                        showPopover: true,
+                        showPopoverEmail: true,
                         error: 'Invalid Username or Password'
                     });
                     //alert('Invalid Username or Password');
@@ -57,7 +59,7 @@ const SignUp = ({ navigation }) => {
                 setData({
                     ...data,
                     signedUp: false,
-                    showPopover: true,
+                    showPopoverConfirmPassword: true,
                     error: 'Passwords do not match'
                 });
                 //alert('Passwords do not match');
@@ -66,7 +68,7 @@ const SignUp = ({ navigation }) => {
             setData({
                 ...data,
                 signedUp: false,
-                showPopover: true,
+                showPopoverFullName: true,
                 error: 'User must add their name'
             });
             //alert('User must add their name');
@@ -147,22 +149,44 @@ const SignUp = ({ navigation }) => {
                         color="white"
                         size={20}
                     />
-                    <TextInput
-                        placeholder='Full Name'
-                        placeholderTextColor = "#ccc"
-                        style={{
-                            color: 'white',
-                            fontFamily: 'Carme',
-                            flex: 0.8,
-                            marginLeft: 10,
-                            borderBottomWidth: 1,
-                            borderBottomColor: 'white',
+                    <Popover
+                        popoverStyle={{
+                            padding: 20,
+                            borderRadius: 22,
+                            backgroundColor: 'white',
                         }}
-                        keyboardType='default'
-                        selectionColor='white'
-                        autoCapitalize='none'
-                        onChangeText={(val) => fullnameInputChange(val)}
-                    />                    
+                        backgroundStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.9)'
+                        }}
+                        mode={PopoverMode.TOOLTIP}
+                        placement={PopoverPlacement.TOP}
+                        isVisible={data.showPopoverFullName}
+                        from={(
+                        <TextInput
+                            placeholder='Full Name'
+                            placeholderTextColor = "#ccc"
+                            style={{
+                                color: 'white',
+                                fontFamily: 'Carme',
+                                flex: 0.8,
+                                marginLeft: 10,
+                                borderBottomWidth: 1,
+                                borderBottomColor: 'white',
+                            }}
+                            keyboardType='default'
+                            selectionColor='white'
+                            autoCapitalize='none'
+                            onChangeText={(val) => fullnameInputChange(val)}
+                        />   
+                        )}
+                    >
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={{fontFamily: 'Carme'}}>{data.error}</Text>
+                        <TouchableOpacity style={{paddingLeft: 20, alignItems: 'center', marginTop: -2.5}} onPress={() => setData({...data, showPopoverFullName: false})}>
+                            <Feather name="x" stroke-width={3} size={20} color="black" />
+                        </TouchableOpacity>
+                        </View>
+                    </Popover>                 
                 </View>
 
                 <View
@@ -173,22 +197,45 @@ const SignUp = ({ navigation }) => {
                         color="white"
                         size={20}
                     />
-                    <TextInput                        
-                        placeholder='Email Address'
-                        placeholderTextColor = "#ccc"
-                        style={{
-                            color: 'white',
-                            fontFamily: 'Carme',
-                            flex: 0.8,
-                            marginLeft: 10,
-                            borderBottomWidth: 1,
-                            borderBottomColor: 'white',
+                    <Popover
+                        popoverStyle={{
+                            padding: 20,
+                            borderRadius: 22,
+                            backgroundColor: 'white',
                         }}
-                        keyboardType='default'
-                        selectionColor='white'
-                        autoCapitalize='none'
-                        onChangeText={(val) => textInputChange(val)}
-                    />                    
+                        backgroundStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.9)'
+                        }}
+                        mode={PopoverMode.TOOLTIP}
+                        placement={PopoverPlacement.TOP}
+                        isVisible={data.showPopoverEmail}
+                        from={(
+                        <TextInput                        
+                            placeholder='Email Address'
+                            placeholderTextColor = "#ccc"
+                            style={{
+                                color: 'white',
+                                fontFamily: 'Carme',
+                                flex: 0.8,
+                                marginLeft: 10,
+                                borderBottomWidth: 1,
+                                borderBottomColor: 'white',
+                            }}
+                            keyboardType='default'
+                            selectionColor='white'
+                            autoCapitalize='none'
+                            onChangeText={(val) => textInputChange(val)}
+                        />
+                        )}
+                    >
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={{fontFamily: 'Carme'}}>{data.error}</Text>
+                        <TouchableOpacity style={{paddingLeft: 20, alignItems: 'center', marginTop: -2.5}} onPress={() => setData({...data, showPopoverEmail: false})}>
+                            <Feather name="x" stroke-width={3} size={20} color="black" />
+                        </TouchableOpacity>
+                        </View>
+                    </Popover>
+                                        
                 </View>
 
                 <View
@@ -243,25 +290,47 @@ const SignUp = ({ navigation }) => {
                         name='lock'
                         color='white'
                         size={20}
-                    />                    
-                    <TextInput
-                        placeholder='Confirm Password'
-                        placeholderTextColor = "#ccc"
-                        secureTextEntry={data.confirm_secureTextEntry ? true : false}
-                        style={{
-                            color: 'white',
-                            flex: 0.8,
-                            fontFamily: 'Carme',
-                            marginLeft: 10,
-                            marginRight: 10,
-                            borderBottomWidth: 1,
-                            borderBottomColor: 'white'
+                    />            
+                    <Popover
+                        popoverStyle={{
+                            padding: 20,
+                            borderRadius: 22,
+                            backgroundColor: 'white',
                         }}
-                        keyboardType='default'
-                        selectionColor='white'
-                        autoCapitalize='none'
-                        onChangeText={(val) => handleConfirmPasswordChange(val)}
-                    />
+                        backgroundStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.9)'
+                        }}
+                        mode={PopoverMode.TOOLTIP}
+                        placement={PopoverPlacement.TOP}
+                        isVisible={data.showPopoverConfirmPassword}
+                        from={(        
+                        <TextInput
+                            placeholder='Confirm Password'
+                            placeholderTextColor = "#ccc"
+                            secureTextEntry={data.confirm_secureTextEntry ? true : false}
+                            style={{
+                                color: 'white',
+                                flex: 0.8,
+                                fontFamily: 'Carme',
+                                marginLeft: 10,
+                                marginRight: 10,
+                                borderBottomWidth: 1,
+                                borderBottomColor: 'white'
+                            }}
+                            keyboardType='default'
+                            selectionColor='white'
+                            autoCapitalize='none'
+                            onChangeText={(val) => handleConfirmPasswordChange(val)}
+                        />
+                        )}
+                    >
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={{fontFamily: 'Carme'}}>{data.error}</Text>
+                        <TouchableOpacity style={{paddingLeft: 20, alignItems: 'center', marginTop: -2.5}} onPress={() => setData({...data, showPopoverConfirmPassword: false})}>
+                            <Feather name="x" stroke-width={3} size={20} color="black" />
+                        </TouchableOpacity>
+                        </View>
+                    </Popover>
                     <TouchableOpacity
                         onPress={updateConfirmSecureTextEntry}
                     >
@@ -301,7 +370,7 @@ const SignUp = ({ navigation }) => {
                     >
                         Sign Up
                     </Text>
-                    <Popover 
+                    {/* <Popover 
                         placement={"center"}
                         isVisible={data.showPopover} 
                         popoverStyle={{
@@ -317,7 +386,7 @@ const SignUp = ({ navigation }) => {
                         <Text style={{fontFamily: 'Carme'}}>
                             {data.error}
                         </Text>
-                    </Popover>
+                    </Popover> */}
                 </TouchableOpacity>
 
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>

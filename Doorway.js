@@ -41,7 +41,8 @@ function Doorway({navigation}) {
 
     let [fontsLoaded] = useFonts({
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
-		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+        'Helvetica-Light': require('./assets/fonts/HelveticaNeue-Light.ttf')
     });
 
     if (!fontsLoaded) {
