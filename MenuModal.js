@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StatusBar, Text, View, Dimensions,  TouchableOpacity} from 'react-native';
+import { StatusBar, Text as rText, View, Dimensions,  TouchableOpacity} from 'react-native';
 import {f, auth, database} from './config/config';
 import {prolePos, boujPos} from './freshPositions';
 import RadioButtonRN from 'radio-buttons-react-native';
@@ -27,7 +27,7 @@ class MenuModal extends Component {
     this.state.styles = {
       text : {color: '#000', fontFamily: 'Carme', fontSize: 18}
     }
-    this.state.language= 'nxl';
+    this.state.language= 0;
     this._sendRequest = this._sendRequest.bind(this);
   }
 
@@ -86,9 +86,11 @@ class MenuModal extends Component {
                   onValueChange={(itemValue, itemIndex) =>
                     this.setState({language: itemValue})
                   }>
-                  <Picker.Item label="Naxalbari" value="nxl" />
-                  <Picker.Item label="Black Lives Matter" value="blm" />
-                  <Picker.Item label="October Revolution" value="oct" />
+
+                  <Picker.Item label="Black Livez Matter" value={0} />
+                  <Picker.Item label="Nandigram" value={1} />
+                  <Picker.Item label="Naxalbari" value={2} />
+                  <Picker.Item label="October Revolution" value={3} />
                 </Picker>
 
 

@@ -163,6 +163,5 @@ class UserHeader extends Component {
     }
 }
 
-{/*  */}
 
 export default UserHeader;

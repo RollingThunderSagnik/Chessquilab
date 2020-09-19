@@ -5,7 +5,7 @@ import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
 import UserHeader from './UserHeader';
-import GameRequestCard from './GameRequestCard';
+import {ReceivedGameCard, SentGameCard} from './GameRequestCard';
 import {f, auth, database} from './config/config';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from "expo-constants";
@@ -15,59 +15,99 @@ import { EventRegister} from 'react-native-event-listeners';
 import Popover from 'react-native-popover-view';
 import Feather from 'react-native-vector-icons/Feather';
 
-const ActivityTab = () => {
-    return (
-        <View style={{backgroundColor: '#181818', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'white'}}>Hello</Text>
-        </View>
-    )
-};
-
-const GameRequestsTab = () => {
-
-    const dummyEvents = [
-        {
-            id: 1,
-            photo: `https://randomuser.me/portraits/men/1.jpg`,
-            event: 'Indian Independence',
-            from: '@Hentai',
-        },
-        {
-            id: 2,
-            photo: `https://randomuser.me/portraits/men/1.jpg`,
-            event: 'Nandigram',
-            from: '@yoko',
-        },
-        {
-            id: 3,
-            photo: `https://randomuser.me/portraits/men/1.jpg`,
-            event: 'Naxalbari',
-            from: '@random',
-        }
-    ]
-
-    const renderEvents = ({item}) => {
-        console.log(item);
-        return (<GameRequestCard event={item.event} from={item.from} />);
+class ActivityTab extends Component {
+    state = {
+        data : [{
+            event: 'hello',
+            from: 'hello',
+        }]
     }
 
-    return (
-        <View style={{backgroundColor: '#181818', flex: 1, alignItems: 'center'}}>
-            <FlatList
-                style={{paddingBottom: 22, marginTop: -16}}
-                data={dummyEvents}
-                renderItem={renderEvents}
-                keyExtractor={(event) => event.id}
-            />
-            {/* <ScrollView contentContainerStyle={{paddingBottom: 22, marginTop: -16}}> */}
-                {/*Game Requests Cards to be Mapped according to API Calls*/}
-                {/* <GameRequestCard event='Indian Independence' from='@Hentai' />
-                <GameRequestCard event='Nandigram' from='@yoko' />
-                <GameRequestCard event='Naxalbari' from='@random' />
-            </ScrollView> */}
-        </View>
-    )
-};
+    constructor(props)
+    {
+        super(props);
+        this.state.data = [];
+    }
+
+    componentDidMount()
+    {
+        database.ref('gameRequests/').on('value', (snapshot) => {
+            let onliners = [];
+            var reqs = snapshot.val();
+            for(var req in reqs)
+            {
+                let game = {...reqs[req],id:req};
+                console.log(game);
+                if(auth.currentUser){
+                    if(game.from == auth.currentUser.uid)
+                        onliners.push(game);
+                }
+            }
+            this.setState({
+                data : onliners
+            });
+        });
+    }
+
+    render()
+    {
+        var receivedReqs = this.state.data.map((req) => {
+            return <SentGameCard key={req.id} id={req.id} context={req.context} from={req.from} to={req.to} prole={req.prole}/>
+        });
+        return (
+            <View style={{backgroundColor: '#181818', flex: 1}}>
+                {receivedReqs}
+            </View>
+        )
+    }
+}
+
+class GameRequestsTab extends Component {
+    state = {
+        data : [{
+            event: 'hello',
+            from: 'hello',
+        }]
+    }
+
+    constructor(props)
+    {
+        super(props);
+        this.state.data = [];
+    }
+
+    componentDidMount()
+    {
+        database.ref('gameRequests/').on('value', (snapshot) => {
+            let onliners = [];
+            var reqs = snapshot.val();
+            for(var req in reqs)
+            {
+                let game = {...reqs[req],id:req};
+                console.log(game);
+                if(auth.currentUser){
+                    if(game.to == auth.currentUser.uid)
+                        onliners.push(game);
+                }
+            }
+            this.setState({
+                data : onliners
+            });
+        });
+    }
+
+    render()
+    {
+        var receivedReqs = this.state.data.map((req) => {
+            return <ReceivedGameCard key={req.id} id={req.id} context={req.context} from={req.from} to={req.to} prole={req.prole}/>
+        });
+        return (
+            <View style={{backgroundColor: '#181818', flex: 1}}>
+                {receivedReqs}
+            </View>
+        )
+    }
+}
 
 class Player extends Component {
     state = {
@@ -79,7 +119,7 @@ class Player extends Component {
     constructor(props)
     {
       super(props);
-    this._modal = this._modal.bind(this);
+      this._modal = this._modal.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -88,7 +128,7 @@ class Player extends Component {
               online : this.props.online,
               }
             );
-          }
+        }
     }
     _modal()
     {
@@ -192,8 +232,8 @@ class ActivePlayersTab extends Component {
     componentDidMount()
     {
         database.ref('users').on('value', (snapshot) => {
-        // alert("haha");
-        let onliners = [];
+        //  alert("haha");
+            let onliners = [];
             var users = snapshot.val();
             for( var user in users)
             {

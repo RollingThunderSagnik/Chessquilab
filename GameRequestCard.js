@@ -1,105 +1,198 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
+import * as Font from 'expo-font';
+import Feather from 'react-native-vector-icons/Feather';
 
+import {f, auth, database} from './config/config';
 const { width, height } = Dimensions.get('screen');
 
-const GameRequestCard = (props) => {
-    let [fontsLoaded] = useFonts({
-		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
-		'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
-    });
+let customFonts = {
+    'Helvetica': require('./assets/fonts/HelveticaNeue-Light.ttf'),
+  };
 
-    if (!fontsLoaded) {
-		return <AppLoading />;
 
-	} else {
+class ReceivedGameCard extends Component {
+    
+    state = {
+        fontsLoaded: false,
+    };
 
+    constructor(props)
+    {
+        super(props);
+        this.state = {};
+    }
+    
+    async _loadFontsAsync() {
+        await Font.loadAsync(customFonts);
+        this.setState({ fontsLoaded: true });
+    }
+
+    componentDidMount()
+    {
+        this._loadFontsAsync();
+        database.ref('users/' + this.props.from).once('value').then( (snapshot) => {
+            var name = snapshot.val().name;
+            this.setState({
+                from: name
+            });
+        })
+        this._getContext();
+    }
+
+    _getContext()
+    {
+        switch(this.props.context)
+            {
+                case 0: 
+                this.setState({ context: 'Black Lives Matter'});
+                if(this.props.prole == auth.currentUser.uid)
+                {   
+                    this.setState({
+                        role: 'ANTIFA'
+                    });
+                }
+                else
+                {   
+                    this.setState({
+                        role: 'White Supremacists'
+                    });
+                }
+                break;
+
+                case 1: 
+                this.setState({ context: 'Nandigram'});
+                if(this.props.prole == auth.currentUser.uid)
+                {   
+                    this.setState({
+                        role: 'Revolutionaries'
+                    });
+                }
+                else
+                {   
+                    this.setState({
+                        role: 'CPM'
+                    });
+                }
+                break;
+
+                case 2: 
+                this.setState({ context: 'Naxalbari'});
+                if(this.props.prole == auth.currentUser.uid)
+                {   
+                    this.setState({
+                        role: 'Naxals'
+                    });
+                }
+                else
+                {   
+                    this.setState({
+                        role: 'Congress'
+                    });
+                }
+                break;
+            }
+    }
+
+    render()
+    {
         return (
-            <View style={styles.poster}>
-                <View style={{flex: 0.7, justifyContent: 'space-evenly'}}>
-                    <Text 
-                        textBreakStrategy='highQuality' 
-                        style={styles.MainEvent}
-                    >
-                        {props.from} invited you to play a game of {props.event}.
-                    </Text>
-                </View>
-                <View style={{flex: 0.3, flexDirection: 'row', justifyContent: 'space-evenly'}}>
-
-                    <TouchableOpacity style={styles.Accept}>
-                        <FontAwesome 
-                            name='check' 
-                            color='white' 
-                            size={14} 
-                            style={{paddingLeft: -4, paddingRight: 4}} 
-                        />
-                        <Text style={{color: 'white', fontFamily: 'Carme'}}>Accept</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.Decline}>
-                        <FontAwesome 
-                            name='remove' 
-                            color='white' 
-                            size={14} 
-                            style={{paddingLeft: -4, paddingRight: 4}}
-                        />
-                        <Text style={{color: 'white', fontFamily: 'Carme'}}>Decline</Text>
-                    </TouchableOpacity>
-
+        <View style={styles.box}>
+            
+            <View style={{flex:1,
+                // backgroundColor:'#222'
+                }}>
+                <Text style={styles.text}>
+                    {this.state.from} challenged you to play as {this.state.role} in '{this.state.context}'
+                </Text>
+                <View style={styles.time}>
+                     <Text style={styles.timetext}>16:00, 9/11/1969</Text>
                 </View>
             </View>
-        )
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.buttons}>
+                    <Feather name="check" stroke-width={3} size={20} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttons}>
+                    <Feather name="x" stroke-width={3} size={20} color="white" />
+                </TouchableOpacity>
+            </View>
+        </View>);
     }
 }
 
-export default GameRequestCard;
+
+class SentGameCard extends ReceivedGameCard {
+
+    componentDidMount()
+    {
+        this._loadFontsAsync();
+        database.ref('users/' + this.props.to).once('value').then( (snapshot) => {
+            var name = snapshot.val().name;
+            this.setState({
+                to: name
+            });
+        })
+        this._getContext();
+    }
+
+    render()
+    {
+        return (
+        <View style={styles.box}>
+            <View style={{flex:1,
+                // backgroundColor:'#222'
+                }}>
+                <Text style={styles.text}>
+                    You challenged {this.state.to}. You will play as {this.state.role} in '{this.state.context}'
+                </Text>
+                <View style={styles.time}>
+                     <Text style={styles.timetext}>16:00, 9/11/1969</Text>
+                </View>
+            </View>
+            
+        </View>);
+    }
+}
+
+// export default SentGameCard;
+export {ReceivedGameCard, SentGameCard};
 
 const styles = StyleSheet.create({
-    poster: {
-        width: width * 0.95,
-        height: 120,
-        borderRadius: 22,
-        borderColor: '#FFFFFF',
-        borderWidth: 2,
-        elevation: 3,
-        backgroundColor: 'black',
-        shadowOffset: {width: 1, height: 1},
-        shadowColor: '#333333',
-        shadowOpacity: 0.3,
-        shadowRadius: 2,
-        marginHorizontal: 4,
-        marginVertical: 0,
-        marginTop: height * 0.05,
+    buttons: {
+        // backgroundColor:'#000',
+        width: 30,
+        height: 30,
+        flexDirection:'row',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    MainEvent: {
-        padding: 12, 
-        color: 'white', 
-        fontFamily: 'Carme', 
-        fontSize: 18
+    buttonContainer:{
+        flexDirection: 'row'
     },
-    Accept: {
-        flex: 1,
-        flexDirection: 'row', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        borderTopWidth: 2, 
-        borderTopColor: 'white', 
-        borderBottomLeftRadius: 22, 
-        borderRightWidth: 1, 
-        borderRightColor: 'white'
+    text :{
+        marginLeft: 8,
+        color: 'white',
+        fontFamily: 'Carme',
+        fontSize: 17,
     },
-    Decline: {
-        flex: 1, 
-        flexDirection: 'row', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        borderTopWidth: 2, 
-        borderTopColor: 'white', 
-        borderBottomRightRadius: 22, 
-        borderLeftWidth: 1, 
-        borderLeftColor: 'white'
-    }
+    time:{
+        flexDirection: 'column',
+        // backgroundColor: '#333',
+        paddingVertical: 2
+    },
+    timetext :{
+        marginHorizontal: 8,
+        color: '#aaa',
+        fontFamily: 'Carme',
+        fontSize: 13
+    },
+    box: {
+        padding:20,
+        paddingBottom: 0,
+        flexDirection: 'row'
+    },
   });

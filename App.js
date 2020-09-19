@@ -6,6 +6,9 @@ import { NavigationContainer } from '@react-navigation/native';
 // import Chessboard from './chessboard';
 import RootStackScreen from './RootStackScreen';
 import UserPage from './UserPage';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
+
 
 const App = () => {
     return (
@@ -16,5 +19,10 @@ const App = () => {
     );
   };
 
-export default App;
+// export default App;
+export default () => (
+  <ApplicationProvider {...eva} theme={eva.light}>
+    <App />
+  </ApplicationProvider>
+);
 
