@@ -4,6 +4,8 @@ import {f, auth, database} from './config/config';
 import Feather from 'react-native-vector-icons/Feather';
 import userimagepawn from './assets/userimagepawn.png';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -75,7 +77,7 @@ class UserHeader extends Component {
         numberOfLines={1} 
         style={{
             color: 'white', 
-            fontFamily: 'Carme', 
+            fontFamily: 'TTNorms-Bold', 
             fontSize: 25,
             paddingLeft: 14
             // alignSelf: 'flex-start',
@@ -97,12 +99,38 @@ class UserHeader extends Component {
         </View>
     );
         return (
-        <>
+        <View style={{
+            position : 'relative'
+        }}>
+
+        <View style={{
+            position:'absolute',
+            bottom: -50,
+            // top: Platform.OS === 'ios' ? Constants.statusBarHeight+80:80,
+            paddingHorizontal: 20,
+            width: width,
+            height: height,
+            flexDirection:'column',
+            justifyContent: 'flex-end',
+            // backgroundColor: '#222'
+        }}>
+        <Text 
+            style={{
+                fontFamily: 'Gilroy-ExtraBold',
+                color: '#333',
+                fontSize: 80
+                }}>
+                {this.state.name}
+            </Text>
+        </View>
+       
+       
+        {/* title */}
         <View style={{
             flexDirection: 'row',
             // justifyContent: 'space-around',
             // alignItems: 'center',
-            backgroundColor: '#181818',
+            // backgroundColor: '#222',
             paddingVertical: 12,
             // margin: 0
         }}>
@@ -116,15 +144,17 @@ class UserHeader extends Component {
             </TouchableOpacity>
             </View>
         </View>
+        
+        {/* deets */}
         <View 
             style={{
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
                 alignItems: 'center',
-                backgroundColor: '#181818',
+                // backgroundColor: '#222',
                 paddingVertical: 12,
                 margin: 0,
-                flex: 0.2
+                // flex: 1
             }}
         >
             <View style={{flex: 0.33, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
@@ -136,7 +166,7 @@ class UserHeader extends Component {
                 />
             </View>
             <View style={{flex: 0.34, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between'}}>
-            <Image source={userimagepawn} 
+            {/* <Image source={userimagepawn} 
                 style={{
                     padding: 4,
                     resizeMode: 'cover', 
@@ -145,8 +175,13 @@ class UserHeader extends Component {
                     height: 80,
                     margin: 0
                 }} 
-            />
-            <Text numberOfLines={2} allowFontScaling adjustsFontSizeToFit style={{fontFamily: 'Carme', color: 'white', fontSize: 20}}>{this.state.name}</Text>
+            /> */}
+            <Icon name='chess-pawn' size={80} color='white' ></Icon>
+            <Text 
+            numberOfLines={2} 
+            allowFontScaling adjustsFontSizeToFit style={{fontFamily: 'Carme', color: 'white', fontSize: 20}}>
+                {}
+            </Text>
             </View>
 
             <View style={{flex: 0.33, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
@@ -158,7 +193,7 @@ class UserHeader extends Component {
                 />
             </View>        
         </View>
-        </>
+        </View>
         )
     }
 }

@@ -5,7 +5,8 @@ import TabBar from 'react-native-underline-tabbar';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
 import UserHeader from './UserHeader';
-import {ReceivedGameCard, SentGameCard} from './GameRequestCard';
+import ReceivedGameCard from './GameRequestCard';
+import SentGameCard from './SentRequestCard';
 import {f, auth, database} from './config/config';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from "expo-constants";
@@ -15,7 +16,7 @@ import { EventRegister} from 'react-native-event-listeners';
 import Popover from 'react-native-popover-view';
 import Feather from 'react-native-vector-icons/Feather';
 
-class ActivityTab extends Component {
+class SentReqsTab extends Component {
     state = {
         data : [{
             event: 'hello',
@@ -62,7 +63,7 @@ class ActivityTab extends Component {
     }
 }
 
-class GameRequestsTab extends Component {
+class RecReqsTab extends Component {
     state = {
         data : [{
             event: 'hello',
@@ -210,7 +211,7 @@ class ShowModal extends Component {
                         }}
                         onRequestClose={() => this.setState({visible:false})}
                     >
-                        <MenuModal opponent={this.state.opponent}></MenuModal>
+                        <MenuModal onPress={() => this.setState({visible:false})} opponent={this.state.opponent}></MenuModal>
                     </Popover>
         );
         // }
@@ -252,7 +253,7 @@ class ActivePlayersTab extends Component {
     render()
     {
         var ussrs = this.state.activeUsers.map((user) => {
-                return <Player onchess={this.props.onchess} key={user.id} id={user.id} name={user.name} online={user.online}></Player>
+                return <Player key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
             <View style={{backgroundColor: '#181818', flex: 1}}>
@@ -262,7 +263,6 @@ class ActivePlayersTab extends Component {
 
     }
 }
-
 
 export default function UserPage(props) {
 
@@ -297,6 +297,12 @@ export default function UserPage(props) {
 		'Carme': require('./assets/fonts/Carme-Regular.ttf'),
         'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
         'Helvetica-Light': require('./assets/fonts/HelveticaNeue-Light.ttf'),
+        'TTNorms-Black': require('./assets/fonts/TTNorms-Black.otf'),
+        'TTNorms-Bold': require('./assets/fonts/TTNorms-Bold.otf'),
+        'TTNorms-ExtraBold': require('./assets/fonts/TTNorms-ExtraBold.otf'),
+        'TTNorms-Medium': require('./assets/fonts/TTNorms-Medium.otf'),
+        'TTNorms-Regular': require('./assets/fonts/TTNorms-Regular.otf'),
+        'Gilroy-ExtraBold': require('./assets/fonts/Gilroy-ExtraBold.otf')
     });
 
     const signOutUser = () => {
@@ -310,8 +316,8 @@ export default function UserPage(props) {
         props.navigation.navigate('Doorway');
     }
 
-    const chaloChess = () => {
-        // props.navigation.navigate('MenuModal');
+    const startGame = () => {
+        props.navigation.navigate('Chessboard');
     }
 
     if (!fontsLoaded) {
@@ -329,16 +335,25 @@ export default function UserPage(props) {
             }}>
                 <UserHeader logout={signOutUser} />
                 <ScrollableTabView
+                    style={{
+                        height:40,
+                        // backgroundColor:'#888',
+                        // flexDirection:'row'
+                    }}
+                    // tabBarPosition='bottom'
                     tabBarInactiveTextColor='#aaa'
                     tabBarActiveTextColor='white'
-                    renderTabBar={() => <TabBar 
+                    renderTabBar={() => {
+                    return (
+                    <TabBar 
                         underlineColor='white' 
                         tabBarTextStyle={{
                             fontFamily: 'Carme',
                             fontSize: 18
                         }}
                         tabBarStyle={{ 
-                            backgroundColor: '#181818',
+                            // flex:1,
+                            // backgroundColor: '#fff',
                             paddingTop: 22,
                             borderBottomWidth: 0,
                             marginTop: 0,
@@ -355,12 +370,15 @@ export default function UserPage(props) {
                                 color: '#181818'
                             }
 
-                        }}
-                    />}
+                        } }
+                    />
+                    
+                    ); 
+                }}
                 >
-                    <GameRequestsTab tabLabel={{label: 'Game Requests', badge: '8'}} label=''/>
-                    <ActivityTab tabLabel={{label: 'Sent Requests'}} label=''/>
-                    <ActivePlayersTab tabLabel={{label: 'Players'}} label='' onchess={chaloChess} />
+                    <RecReqsTab tabLabel={{label: 'Game Requests', badge: '8'}} label=''/>
+                    <SentReqsTab tabLabel={{label: 'Sent Requests'}} label=''/>
+                    <ActivePlayersTab tabLabel={{label: 'Players'}} label='' />
                 </ScrollableTabView>
             </View>
             </>

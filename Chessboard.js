@@ -32,11 +32,9 @@ function rotateBoard(rawuserPos){
   return userPos;
 }
 
-import {prolePos, boujPos} from './freshPositions';
-var userPos = boujPos;
-var enemyPos = prolePos;
+var userPos = [];
+var enemyPos = [];
 
-// enemyPos = rotateBoard(enemyPos);
 
 
 class Pospos extends Component {
@@ -493,27 +491,36 @@ class Chessboard extends Component {
   constructor(props)
   {
     super(props);
+    database.ref('users/' + user.uid).once('value')
+    .then( (snapshot)=> {
+      this.setState({
+        opponent : snapshot.val().opponent
+      });
+    }).then ( ()=> {
+      // console.log(this.state.opponent)
+      database.ref('users/' + this.state.opponent).on('value', (snapshot)=> {
+        enemyPos = snapshot.val().position;
+        console.log(snapshot.val());
+        this.setState({
+          enemydeets : rotateBoard(enemyPos)
+        });
+      });
+    });
   }
 
   componentDidMount() {
-    this.listener = EventRegister.addEventListener('movemade', (data) => {
-      this.setState({
-        piecedeets : data.a,
-        enemydeets : rotateBoard(data.b)
-      });
-    });
-    console.log(userID);
-    database.ref('users/' + user.uid).on('value', function(snapshot) {
-        // alert("haha");
-        // if(snapshot.val())
-        // console.log(snapshot.val().position);
+    // console.log(userID);
+    database.ref('users/' + user.uid).on('value', (snapshot)=> {
         userPos = snapshot.val().position;
-        EventRegister.emit('movemade', {a: userPos, b: enemyPos});
-      });
+        this.setState({
+          piecedeets : userPos
+        });
+    });
+ 
+    
   }
 
   componentWillUnmount() {
-    EventRegister.removeEventListener(this.listener);
   }
 
   render()
@@ -572,12 +579,7 @@ f.auth().onAuthStateChanged(function(ussr) {
   if (ussr) {
     user = ussr;
     userID = user.uid;
-    database.ref('users/' + auth.currentUser.uid + '/position').set(
-      userPos
-    );
-    // alert(user.uid);  
   } else {
-    // No user is signed in.
   }
 });
 
@@ -594,7 +596,6 @@ class ChessScreen extends Component {
 
   render()
   {
-    // if(this.state.ready)
     return (<>
       <StatusBar barStyle='light-content'/>
       <View style={{
@@ -606,8 +607,6 @@ class ChessScreen extends Component {
         <Chessboard></Chessboard>
       </View>
       </>);
-    // else
-    // return <AppLoading></AppLoading>;
   }
 }
 

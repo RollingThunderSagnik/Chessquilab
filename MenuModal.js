@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
 import { StatusBar, Text, View, Dimensions,  TouchableOpacity} from 'react-native';
 import {f, auth, database} from './config/config';
-import {prolePos, boujPos} from './freshPositions';
 import RadioButtonRN from 'radio-buttons-react-native';
 import {Picker} from '@react-native-community/picker';
 import SmoothPicker from "react-native-smooth-picker";
 
-
-var userPos = boujPos;
-var enemyPos = prolePos;
 
 const sWidth = Dimensions.get('window').width;
 const sHeight = Dimensions.get('window').height;
@@ -35,7 +31,7 @@ class MenuModal extends Component {
     this.state.player2 = this.props.opponent || ' ';
     this.state.roleprole = 'nxl';
     this.state.styles = {
-      text : {color: '#000', fontFamily: 'Carme', fontSize: 18}
+      text : {color: '#000', fontFamily: 'TTNorms-Medium', fontSize: 18}
     }
     this.state.language= 0;
     this._sendRequest = this._sendRequest.bind(this);
@@ -55,11 +51,12 @@ class MenuModal extends Component {
     updates['/gameRequests/' + x] = {
       from: this.state.player1.uid,
       to: this.state.player2.uid,
-      context: this.state.language,
+      context: this.state.scenario,
       prole : this.state.roleprole
     };
 
     database.ref().update(updates);
+    this.props.onPress();
   }
 
   render()
@@ -116,6 +113,7 @@ class MenuModal extends Component {
                     <View style={{
                       borderColor: index === scenario ? '#000':'#999',
                       borderWidth: 1,
+                      backgroundColor: index === scenario ? '#222':'#fff',
                       // width:100,
                       padding:12,
                       paddingHorizontal:20,
@@ -124,15 +122,18 @@ class MenuModal extends Component {
                       margin: 10,
                   }}>
                     <Text style={{
-                      color: index === scenario ? '#000':'#999',
+                      color:  index === scenario ? '#fff':'#777',
                   }}>{item.label}</Text>
                     </View>
                   )}
                 />
                 
 
-                <View>
-                <Text style={{...this.state.styles.text, fontSize:13}}>CHOOSE PROLE</Text>
+                <View style={{
+                marginTop: 15}}>
+                <Text style={{...this.state.styles.text, fontSize:13}}>
+                  CHOOSE REVOLUTIONARIES
+                </Text>
                 </View>
                  <RadioButtonRN
                     data={radio_props}
@@ -149,7 +150,8 @@ class MenuModal extends Component {
                <TouchableOpacity 
                     style={{
                       alignSelf:'center',
-                      marginTop: 10
+                      marginTop: 8,
+                      marginBottom: 5
                     }}
                     onPress={this._sendRequest}
                 >
@@ -164,10 +166,10 @@ class MenuModal extends Component {
                     <Text
                         style={{
                             color: '#000',
-                            fontFamily: 'Carme'
+                            fontFamily: 'TTNorms-Bold'
                         }}
                     >
-                        challenge!
+                        CHALLENGE!
                     </Text>
                     </View>
                 </TouchableOpacity> 

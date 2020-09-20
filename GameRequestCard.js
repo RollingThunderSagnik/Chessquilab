@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useFonts } from '@use-expo/font';
-import { AppLoading } from 'expo';
-import * as Font from 'expo-font';
 import Feather from 'react-native-vector-icons/Feather';
-
 import {f, auth, database} from './config/config';
+import { useNavigation } from '@react-navigation/native';
+
+import {prolePos, boujPos} from './freshPositions';
+const userPos = boujPos;
+const enemyPos = prolePos;
+
 const { width, height } = Dimensions.get('screen');
 
-let customFonts = {
-    'Helvetica': require('./assets/fonts/HelveticaNeue-Light.ttf'),
-  };
+
+
+
 
 
 class ReceivedGameCard extends Component {
@@ -23,17 +24,15 @@ class ReceivedGameCard extends Component {
     constructor(props)
     {
         super(props);
-        this.state = {};
+        this.state = {
+            id: this.props.id
+        };
+        this._accept = this._accept.bind(this);
+        // this.state.navigation = this.props.navigation;
     }
     
-    async _loadFontsAsync() {
-        await Font.loadAsync(customFonts);
-        this.setState({ fontsLoaded: true });
-    }
-
     componentDidMount()
     {
-        this._loadFontsAsync();
         database.ref('users/' + this.props.from).once('value').then( (snapshot) => {
             var name = snapshot.val().name;
             this.setState({
@@ -41,6 +40,32 @@ class ReceivedGameCard extends Component {
             });
         })
         this._getContext();
+    }
+
+    _accept()
+    {
+
+        // alert(this.state.id);
+        // database.ref('gameRequests/'+this.state.id).remove()
+        // .then(() => {
+        //     console.log(this.state.id);
+        // });
+        database.ref('users/' + this.props.prole).update({
+            position : prolePos,
+            playing : true,
+        });
+        var bouj = (this.props.prole == this.props.to)?this.props.from:this.props.to;
+        database.ref('users/' + bouj).update({
+            position : boujPos,
+            playing : true,
+        });
+        database.ref('users/' + this.props.from).update({
+            opponent : this.props.to
+        });
+        database.ref('users/' + this.props.to).update({
+            opponent : this.props.from
+        });
+        this.props.navigation.navigate('Chessboard');
     }
 
     _getContext()
@@ -113,7 +138,7 @@ class ReceivedGameCard extends Component {
                 </View>
             </View>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.buttons}>
+                <TouchableOpacity onPress={this._accept} style={styles.buttons}>
                     <Feather name="check" stroke-width={3} size={20} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttons}>
@@ -123,43 +148,13 @@ class ReceivedGameCard extends Component {
         </View>);
     }
 }
-
-
-class SentGameCard extends ReceivedGameCard {
-
-    componentDidMount()
-    {
-        this._loadFontsAsync();
-        database.ref('users/' + this.props.to).once('value').then( (snapshot) => {
-            var name = snapshot.val().name;
-            this.setState({
-                to: name
-            });
-        })
-        this._getContext();
-    }
-
-    render()
-    {
-        return (
-        <View style={styles.box}>
-            <View style={{flex:1,
-                // backgroundColor:'#222'
-                }}>
-                <Text style={styles.text}>
-                    You challenged {this.state.to}. You will play as {this.state.role} in '{this.state.context}'
-                </Text>
-                <View style={styles.time}>
-                     <Text style={styles.timetext}>16:00, 9/11/1969</Text>
-                </View>
-            </View>
-            
-        </View>);
-    }
+// export default ReceivedGameCard;
+export default function(props) {
+    const navigation = useNavigation();
+  
+    return <ReceivedGameCard {...props} navigation={navigation} />;
 }
 
-// export default SentGameCard;
-export {ReceivedGameCard, SentGameCard};
 
 const styles = StyleSheet.create({
     buttons: {
