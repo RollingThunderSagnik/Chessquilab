@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { StatusBar, Text as rText, View, Dimensions,  TouchableOpacity} from 'react-native';
+import { StatusBar, Text, View, Dimensions,  TouchableOpacity} from 'react-native';
 import {f, auth, database} from './config/config';
 import {prolePos, boujPos} from './freshPositions';
 import RadioButtonRN from 'radio-buttons-react-native';
 import {Picker} from '@react-native-community/picker';
+import SmoothPicker from "react-native-smooth-picker";
 
 
 var userPos = boujPos;
@@ -12,12 +13,21 @@ var enemyPos = prolePos;
 const sWidth = Dimensions.get('window').width;
 const sHeight = Dimensions.get('window').height;
 
-
 class MenuModal extends Component {
   state = {
       player1: 'a',
-      player2: 'b'
+      player2: 'b',
+      scenario: 0
   }
+
+  handleChange = async(index) => {
+    await this.setState({
+      scenario: index
+    });
+    console.log(this.state.scenario,this.state.roleprole);
+    
+  };
+
   constructor(props)
   {
     super(props);
@@ -54,11 +64,19 @@ class MenuModal extends Component {
 
   render()
   {
-    var radio_props = [
+    const radio_props = [
       {label: this.state.player1.displayName, value: this.state.player1.uid },
       {label: this.state.player2.name, value: this.state.player2.uid }
     ];
-    
+    const select_props = [
+      {value: 0, label: 'Black Lives Matter'},
+      {value: 1, label: 'Nandigram'},
+      {value: 2, label: 'Naxalbari'},
+      {value: 3, label: 'October Revolution'}
+    ];
+    const { scenario } = this.state;
+
+
     return (
      <>
       
@@ -80,26 +98,43 @@ class MenuModal extends Component {
                 <View>
                 <Text style={{...this.state.styles.text, fontSize:13}}>CHOOSE SCENARIO</Text>
                 </View>
-                 <Picker
-                  selectedValue={this.state.language}
-                  style={{height: 50, borderWidth:1, borderColor:'#000'}}
-                  onValueChange={(itemValue, itemIndex) =>
-                    this.setState({language: itemValue})
-                  }>
-
-                  <Picker.Item label="Black Livez Matter" value={0} />
-                  <Picker.Item label="Nandigram" value={1} />
-                  <Picker.Item label="Naxalbari" value={2} />
-                  <Picker.Item label="October Revolution" value={3} />
-                </Picker>
-
+                <SmoothPicker
+                  style={{
+                    alignSelf:'center'
+                  }}
+                  offsetSelection={0}
+                  magnet
+                  width={sWidth/2}
+                  scrollAnimation
+                  horizontal={true}
+                  // selectOnPress={true}
+                  // snapInterval={200}
+                  data={select_props}
+                  keyExtractor={(item) => item.value}
+                  onSelected={({ item, index }) => this.handleChange(index)}
+                  renderItem={({ item, index }) => (
+                    <View style={{
+                      borderColor: index === scenario ? '#000':'#999',
+                      borderWidth: 1,
+                      // width:100,
+                      padding:12,
+                      paddingHorizontal:20,
+                      alignItems:'center',
+                      borderRadius:2,
+                      margin: 10,
+                  }}>
+                    <Text style={{
+                      color: index === scenario ? '#000':'#999',
+                  }}>{item.label}</Text>
+                    </View>
+                  )}
+                />
+                
 
                 <View>
                 <Text style={{...this.state.styles.text, fontSize:13}}>CHOOSE PROLE</Text>
                 </View>
-
-
-                <RadioButtonRN
+                 <RadioButtonRN
                     data={radio_props}
                     selectedBtn={(e) => this.setState({roleprole : e.value})}
                     initial={1}
@@ -109,6 +144,8 @@ class MenuModal extends Component {
                     activeColor='#ff4971'
                     boxActiveBgColor='#ff497155'
                   /> 
+
+
                <TouchableOpacity 
                     style={{
                       alignSelf:'center',
@@ -133,7 +170,7 @@ class MenuModal extends Component {
                         challenge!
                     </Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> 
           </View>
       </>);   
 }
