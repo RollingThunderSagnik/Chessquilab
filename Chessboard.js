@@ -20,16 +20,21 @@ const tsize = chsize/8;
 
 var user = f.auth().currentUser;
 var userID;
+var oppID;
 var name, email, photoUrl, uid, emailVerified;
 
 function rotateBoard(rawuserPos){
-  var userPos = JSON.parse(JSON.stringify(rawuserPos));
-  for(let i=0;i<userPos.length;i++)
+  var uPos = JSON.parse(JSON.stringify(rawuserPos));
+  for(let i=0;i<uPos.length;i++)
   {
-    userPos[i].x = 7 - userPos[i].x;
-    userPos[i].y = 7 - userPos[i].y;
+    if(uPos[i])
+    {
+    uPos[i].x = 7 - uPos[i].x;
+    if(uPos[i].y != -1)
+      uPos[i].y = 7 - uPos[i].y;
+    }
   }
-  return userPos;
+  return uPos;
 }
 
 var userPos = [];
@@ -140,20 +145,25 @@ class Piece extends Component {
     if(indx >= 0)
     {
       console.log({...enemyPos[indx]});
-      enemyPos[indx] = {};
+      enemyPos[indx].y = -1
+      enemyPos[indx].x = 7
     }
     userPos[this.props.id].x = nx;
     userPos[this.props.id].y = ny;
-    // userPos= rotateBoard(userPos);
     // EventRegister.emit('movemade');
     database.ref('users/' + userID + "/position").set(
       userPos
+    );
+    // let haha = rotateBoard(enemyPos);
+    database.ref('users/' + oppID + "/position").set(
+      enemyPos
     );
     EventRegister.emit('clearpos');
   }  
 
   render()
   {
+    if(this.state.top != -1)
     return (
       <View>
       <TouchableWithoutFeedback onPress={this._onShowMoves}>
@@ -165,6 +175,24 @@ class Piece extends Component {
         position: "absolute",
         left: this.state.left*tsize,
         top: this.state.top*tsize
+      }}>
+        <Text>
+          {/* {this.state.left + "," + this.state.top+"\n"+this.props.id} */}
+        </Text>
+      </ImageBackground>
+      </TouchableWithoutFeedback>
+      {this.state.nextmove}
+      </View>
+    );
+
+    return(
+      <View>
+      <TouchableWithoutFeedback onPress={this._onShowMoves}>
+      <ImageBackground source={this.state.img} style={{
+        margin: 0,
+        padding: 0,
+        width: tsize,
+        height: tsize,
       }}>
         <Text>
           {/* {this.state.left + "," + this.state.top+"\n"+this.props.id} */}
@@ -498,6 +526,7 @@ class Chessboard extends Component {
       });
     }).then ( ()=> {
       // console.log(this.state.opponent)
+      oppID = this.state.opponent;
       database.ref('users/' + this.state.opponent).on('value', (snapshot)=> {
         enemyPos = snapshot.val().position;
         console.log(snapshot.val());
@@ -526,6 +555,8 @@ class Chessboard extends Component {
   render()
   {
     var pisces = this.state.piecedeets.map( (item) => {
+      if (item.y ==-1)
+        return;
       switch (item.type) {
         case 0:
           return <Pawn key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
@@ -543,6 +574,46 @@ class Chessboard extends Component {
     });
 
     var enemypisces = this.state.enemydeets.map( (item) => {
+      if (item.y ==-1)
+        return;
+      switch (item.type) {
+        case 0:
+          return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+        case 1:
+          return <Rook disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+        case 2:
+          return <Knight disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+        case 3:
+          return <Bishop disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+        case 4:
+          return <Queen disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+        case 5:
+          return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+      }
+    });
+
+    var enemyout = this.state.enemydeets.map( (item) => {
+      if (item.y != -1)
+      return;
+      switch (item.type) {
+        case 0:
+          return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+        case 1:
+          return <Rook disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+        case 2:
+          return <Knight disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+        case 3:
+          return <Bishop disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+        case 4:
+          return <Queen disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+        case 5:
+          return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+      }
+    });
+
+    var myout = this.state.piecedeets.map( (item) => {
+      if (item.y != -1)
+      return;
       switch (item.type) {
         case 0:
           return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
@@ -559,7 +630,13 @@ class Chessboard extends Component {
       }
     });
     return (
-      
+    <>
+    <View style={styles.gutiout}>
+      {enemyout}
+    </View>
+    <View style={styles.myout}>
+      {myout}
+    </View>
     <View style={{
       width: chsize,
       backgroundColor: '#09f',
@@ -567,10 +644,11 @@ class Chessboard extends Component {
       }}>
       
       <ImageBackground source={image} style={styles.image}>
-      {pisces}
       {enemypisces}
+      {pisces}
       </ImageBackground>
     </View>
+    </>
     );
   }
 }
@@ -600,7 +678,7 @@ class ChessScreen extends Component {
       <StatusBar barStyle='light-content'/>
       <View style={{
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#181818',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
@@ -613,6 +691,29 @@ class ChessScreen extends Component {
 export default ChessScreen;
 
 const styles = StyleSheet.create({
+  gutiout : {
+    position : 'absolute',
+    top: 50,
+    // width:100,
+    // height:100,
+    flexDirection:'row',
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 50,
+    paddingHorizontal: 20
+  },
+  myout : {
+    position : 'absolute',
+    bottom: 50,
+    // width:100,
+    // height:100,
+    flexDirection:'row',
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 50,
+    paddingHorizontal: 20
+  },
+
     image: {
       flex: 1,
       width: chsize,

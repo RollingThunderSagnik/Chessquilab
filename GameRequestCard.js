@@ -65,7 +65,7 @@ class ReceivedGameCard extends Component {
         database.ref('users/' + this.props.to).update({
             opponent : this.props.from
         });
-        this.props.navigation.navigate('Chessboard');
+        // this.props.navigation.navigate('Chessboard');
     }
 
     _getContext()

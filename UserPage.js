@@ -305,6 +305,13 @@ export default function UserPage(props) {
         'Gilroy-ExtraBold': require('./assets/fonts/Gilroy-ExtraBold.otf')
     });
 
+    //start game
+    database.ref('users/' + auth.currentUser.uid + '/playing').on('value', (snapshot) => {
+        let val = snapshot.val();
+        alert(val);
+        props.navigation.navigate('Chessboard');
+    });
+
     const signOutUser = () => {
         database.ref('users/' + auth.currentUser.uid + '/').update({'online': false})
         auth.signOut()
@@ -314,10 +321,6 @@ export default function UserPage(props) {
             });
     
         props.navigation.navigate('Doorway');
-    }
-
-    const startGame = () => {
-        props.navigation.navigate('Chessboard');
     }
 
     if (!fontsLoaded) {
