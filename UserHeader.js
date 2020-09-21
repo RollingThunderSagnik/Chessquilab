@@ -87,19 +87,20 @@ class UserHeader extends Component {
         >CHESSQUILAB</Text>);
 
         var options = (
-        <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 3}}>
             <TouchableOpacity 
             style={{height:25, marginHorizontal: 8, borderColor: 'white', borderWidth: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: 'white',  fontFamily: 'Carme', fontSize: 13, paddingHorizontal: 8}}>Change Avatar</Text>
+                <Text style={{color: 'white',  fontFamily: 'TTNorms-Regular', fontSize: 13, paddingHorizontal: 8}}>Change Avatar</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this._signOutUser()}  
             style={{marginHorizontal: 8, borderColor: 'white', borderWidth: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: 'white',  fontFamily: 'Carme', fontSize: 13, paddingHorizontal: 30}}>Log Out</Text>
+                <Text style={{color: 'white',  fontFamily: 'TTNorms-Regular', fontSize: 13, paddingHorizontal: 30}}>Log Out</Text>
             </TouchableOpacity>
         </View>
     );
         return (
         <View style={{
+            marginBottom: 20,
             position : 'relative'
         }}>
 
