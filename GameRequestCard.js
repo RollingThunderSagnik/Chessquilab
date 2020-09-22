@@ -53,11 +53,13 @@ class ReceivedGameCard extends Component {
         database.ref('users/' + this.props.prole).update({
             position : prolePos,
             playing : true,
+            turn: false
         });
         var bouj = (this.props.prole == this.props.to)?this.props.from:this.props.to;
         database.ref('users/' + bouj).update({
             position : boujPos,
             playing : true,
+            turn: true
         });
         database.ref('users/' + this.props.from).update({
             opponent : this.props.to

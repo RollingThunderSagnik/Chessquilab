@@ -304,11 +304,10 @@ export default function UserPage(props) {
         'TTNorms-Regular': require('./assets/fonts/TTNorms-Regular.otf'),
         'Gilroy-ExtraBold': require('./assets/fonts/Gilroy-ExtraBold.otf')
     });
-
     //start game
     database.ref('users/' + auth.currentUser.uid + '/playing').on('value', (snapshot) => {
         let val = snapshot.val();
-        alert(val);
+        // alert(val);
         props.navigation.navigate('Chessboard');
     });
 

@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
-import { StatusBar, StyleSheet, Text, View, Dimensions, ImageBackground, TouchableWithoutFeedback} from 'react-native';
+import React, { Component, useEffect } from 'react';
+import { StatusBar, Alert, StyleSheet, Text, View, BackHandler, Dimensions, ImageBackground, TouchableWithoutFeedback} from 'react-native';
 import PropTypes from 'prop-types';
 import { EventRegister} from 'react-native-event-listeners';
 import {f, auth, database} from './config/config';
 import { AppLoading } from 'expo';    
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
@@ -151,13 +152,15 @@ class Piece extends Component {
     userPos[this.props.id].x = nx;
     userPos[this.props.id].y = ny;
     // EventRegister.emit('movemade');
-    database.ref('users/' + userID + "/position").set(
-      userPos
-    );
+    database.ref('users/' + userID ).update({
+      position: userPos,
+      turn : false,
+    });
     // let haha = rotateBoard(enemyPos);
-    database.ref('users/' + oppID + "/position").set(
-      enemyPos
-    );
+    database.ref('users/' + oppID ).update({
+      position: enemyPos,
+      turn : true
+    });
     EventRegister.emit('clearpos');
   }  
 
@@ -507,44 +510,51 @@ class King extends Piece {
 
 }
 
-// console.log((new King())._getValidMoves(0,0));
-
 class Chessboard extends Component {
   
   state = {
     piecedeets : userPos,
-    enemydeets : rotateBoard(enemyPos)
+    enemydeets : rotateBoard(enemyPos),
+    turn: true,
   }
 
   constructor(props)
   {
     super(props);
-    database.ref('users/' + user.uid).once('value')
-    .then( (snapshot)=> {
-      this.setState({
-        opponent : snapshot.val().opponent
-      });
-    }).then ( ()=> {
-      // console.log(this.state.opponent)
-      oppID = this.state.opponent;
-      database.ref('users/' + this.state.opponent).on('value', (snapshot)=> {
+    database.ref('users/' + user.uid).on('value',(snapshot)=> {
+      // this.setState({
+      //   opponent : snapshot.val().opponent
+      // });
+      oppID = snapshot.val().opponent;
+    })
+  }
+
+  componentDidMount() {
+    // console.log(userID);
+    database.ref('users/' + user.uid + '/position').on('value', (snapshot)=> {
+        userPos = snapshot.val();
+        this.setState({
+          piecedeets : userPos
+        });
+    });
+
+    database.ref('users/' + oppID).on('value', (snapshot)=> {
+      if(snapshot.val())
+      {
         enemyPos = snapshot.val().position;
         console.log(snapshot.val());
         this.setState({
           enemydeets : rotateBoard(enemyPos)
         });
-      });
+      }
     });
-  }
 
-  componentDidMount() {
-    // console.log(userID);
-    database.ref('users/' + user.uid).on('value', (snapshot)=> {
-        userPos = snapshot.val().position;
-        this.setState({
-          piecedeets : userPos
-        });
-    });
+    database.ref('users/' + user.uid + '/turn').on('value', (snapshot)=> {
+      let turnornot = snapshot.val();
+      this.setState({
+        turn : turnornot
+      });
+  });
  
     
   }
@@ -554,6 +564,21 @@ class Chessboard extends Component {
 
   render()
   {
+    var veil =<View style={{
+        position: 'absolute',
+        width: chsize,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        height: chsize,
+        alignItems: 'center',
+        justifyContent: 'center'
+        }}>
+          <Icon name='hourglass-half' size={60} color='white' ></Icon>
+      </View>
+    
+
+    if(this.state.piecedeets == null || this.state.enemydeets == null)
+      return <View></View>
+
     var pisces = this.state.piecedeets.map( (item) => {
       if (item.y ==-1)
         return;
@@ -629,6 +654,7 @@ class Chessboard extends Component {
           return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
       }
     });
+
     return (
     <>
     <View style={styles.gutiout}>
@@ -648,6 +674,8 @@ class Chessboard extends Component {
       {pisces}
       </ImageBackground>
     </View>
+
+    {this.state.turn?<></>:veil}
     </>
     );
   }
@@ -661,19 +689,36 @@ f.auth().onAuthStateChanged(function(ussr) {
   }
 });
 
-class ChessScreen extends Component {
-  constructor(props)
-  {
-    super(props);
-  }
+export default function ChessScreen(props) {
 
-  componentDidMount()
-  {
-    
-  }
+    const handleBackButton = () => {
+        // Alert.alert(
+        //     'Exit Chessquilab ?',
+        //     '', [{
+        //         text: 'Cancel',
+        //         style: 'cancel'
+        //     }, {
+        //         text: 'OK',
+        //         onPress: () => props.navigation.goBack()
+        //     }],
+        //     {
+        //         cancelable: false
+        //     }
+        // );
+        return true;
+    }
 
-  render()
-  {
+    useEffect(() => {
+        props.navigation.addListener('focus', () => {
+            BackHandler.addEventListener('hardwareBackPress', handleBackButton)
+        })
+
+        props.navigation.addListener('blur', () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        })
+    });
+
+
     return (<>
       <StatusBar barStyle='light-content'/>
       <View style={{
@@ -682,13 +727,12 @@ class ChessScreen extends Component {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <Chessboard></Chessboard>
+        <Chessboard exitapp={handleBackButton}></Chessboard>
       </View>
       </>);
-  }
 }
 
-export default ChessScreen;
+// export default ChessScreen;
 
 const styles = StyleSheet.create({
   gutiout : {
