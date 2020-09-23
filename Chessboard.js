@@ -5,6 +5,7 @@ import { EventRegister} from 'react-native-event-listeners';
 import {f, auth, database} from './config/config';
 import { AppLoading } from 'expo';    
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { LinearGradient } from 'react-native-svg';
 
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
@@ -20,8 +21,7 @@ const imgking = require('./assets/king.png');
 const tsize = chsize/8;
 
 var user = f.auth().currentUser;
-var userID;
-var oppID;
+var userID, oppID, myout, enemyout;
 var name, email, photoUrl, uid, emailVerified;
 
 function rotateBoard(rawuserPos){
@@ -145,7 +145,7 @@ class Piece extends Component {
     var indx = rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==nx)&&(piece.y==ny))});
     if(indx >= 0)
     {
-      console.log({...enemyPos[indx]});
+      // console.log({...enemyPos[indx]});
       enemyPos[indx].y = -1
       enemyPos[indx].x = 7
     }
@@ -219,8 +219,19 @@ class Pawn extends Piece {
 
   _getValidMoves(left,top)
   {
+    let cutoff=0;
+    if(hasKing())
+    {
+      if(top>5)
+        cutoff=1;
+    }
+    else
+    {
+    if(top>=5)
+     cutoff=1;
+    }
     var validmoves=[];
-    for(let i=1;i<3;i++)
+    for(let i=1;i<(2+cutoff);i++)
     {
       var saysaysay = {x:left, y:top-i};
       if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
@@ -346,6 +357,41 @@ function wouldCheckMate(x,y){
     return true;
   return false;
 }
+ 
+function checkKing()
+{
+  return 'raja'
+}
+
+function checkPawn()
+{
+  let haha = myout.length;
+  return (haha);
+}
+
+function checkLost()
+{
+  if(hasKing())
+  {
+    console.log(checkKing());
+  }
+  else
+  {
+    console.log(checkPawn());
+  }
+}
+
+function hasKing()
+{
+  for(let i in userPos)
+  {
+    let item = userPos[i];
+    // console.log(item.type); 
+    if(item.type!=0)
+      return true;
+  } 
+  return false;
+} 
 
 function checkmove(say,vmoves)
 {
@@ -521,42 +567,63 @@ class Chessboard extends Component {
   constructor(props)
   {
     super(props);
-    database.ref('users/' + user.uid).on('value',(snapshot)=> {
-      // this.setState({
-      //   opponent : snapshot.val().opponent
-      // });
+    database.ref('users/' + user.uid).once('value')
+    .then((snapshot)=> {
+      this.setState({
+        opponent : snapshot.val().opponent
+      });
       oppID = snapshot.val().opponent;
-    })
-  }
+    }).then( () => {
+      database.ref('users/' + this.state.opponent).on('value', (snapshot)=> {
+        if(snapshot.val())
+        {
+          enemyPos = snapshot.val().position;
+          this.setState({
+            enemydeets : rotateBoard(enemyPos)
+          });
+        }
+        // this.props.exitapp();
+      });
 
-  componentDidMount() {
-    // console.log(userID);
-    database.ref('users/' + user.uid + '/position').on('value', (snapshot)=> {
+      database.ref('users/' + user.uid + '/position').on('value', (snapshot)=> {
         userPos = snapshot.val();
         this.setState({
           piecedeets : userPos
         });
+      });
+      // console.log(hasKing());
     });
+  }
 
-    database.ref('users/' + oppID).on('value', (snapshot)=> {
-      if(snapshot.val())
-      {
-        enemyPos = snapshot.val().position;
-        console.log(snapshot.val());
-        this.setState({
-          enemydeets : rotateBoard(enemyPos)
-        });
-      }
-    });
-
+  componentDidMount() {    
     database.ref('users/' + user.uid + '/turn').on('value', (snapshot)=> {
       let turnornot = snapshot.val();
+      if(turnornot)
+        checkLost();
       this.setState({
         turn : turnornot
       });
   });
  
     
+  }
+
+  _getPawns (item,disabld)
+  {
+    switch (item.type) {
+      case 0:
+        return <Pawn disabled={disabld} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+      case 1:
+        return <Rook disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+      case 2:
+        return <Knight disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+      case 3:
+        return <Bishop disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+      case 4:
+        return <Queen disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+      case 5:
+        return <King disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+    }
   }
 
   componentWillUnmount() {
@@ -582,87 +649,39 @@ class Chessboard extends Component {
     var pisces = this.state.piecedeets.map( (item) => {
       if (item.y ==-1)
         return;
-      switch (item.type) {
-        case 0:
-          return <Pawn key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
-        case 1:
-          return <Rook key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
-        case 2:
-          return <Knight key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
-        case 3:
-          return <Bishop key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
-        case 4:
-          return <Queen key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
-        case 5:
-          return <King key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
-      }
+        return this._getPawns(item,false);
     });
 
     var enemypisces = this.state.enemydeets.map( (item) => {
       if (item.y ==-1)
         return;
-      switch (item.type) {
-        case 0:
-          return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
-        case 1:
-          return <Rook disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
-        case 2:
-          return <Knight disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
-        case 3:
-          return <Bishop disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
-        case 4:
-          return <Queen disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
-        case 5:
-          return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
-      }
+      return this._getPawns(item,true);
     });
 
-    var enemyout = this.state.enemydeets.map( (item) => {
-      if (item.y != -1)
-      return;
-      switch (item.type) {
-        case 0:
-          return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
-        case 1:
-          return <Rook disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
-        case 2:
-          return <Knight disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
-        case 3:
-          return <Bishop disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
-        case 4:
-          return <Queen disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
-        case 5:
-          return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
-      }
-    });
+    enemyout = [];
+    for(let i in this.state.enemydeets)
+    {
+      let item = this.state.enemydeets[i];
+      // console.log('item');
+      // console.log(item);
+      if(item.y==-1)
+      enemyout.push(this._getPawns(item,true));
+    };
 
-    var myout = this.state.piecedeets.map( (item) => {
-      if (item.y != -1)
-      return;
-      switch (item.type) {
-        case 0:
-          return <Pawn disabled={true} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
-        case 1:
-          return <Rook disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
-        case 2:
-          return <Knight disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
-        case 3:
-          return <Bishop disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
-        case 4:
-          return <Queen disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
-        case 5:
-          return <King disabled={true} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
-      }
-    });
+    myout = [];
+    for(let i in this.state.piecedeets)
+    {
+      let item = this.state.piecedeets[i];
+      // console.log('item');
+      // console.log(item);
+      if(item.y==-1)
+      myout.push(this._getPawns(item,true));
+    };
 
     return (
     <>
-    <View style={styles.gutiout}>
-      {enemyout}
-    </View>
-    <View style={styles.myout}>
-      {myout}
-    </View>
+    {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
+    {myout.length==0?<></>:<View style={styles.myout}>{myout}</View>}
     <View style={{
       width: chsize,
       backgroundColor: '#09f',
@@ -705,6 +724,7 @@ export default function ChessScreen(props) {
         //         cancelable: false
         //     }
         // );
+        // props.navigation.goBack()
         return true;
     }
 

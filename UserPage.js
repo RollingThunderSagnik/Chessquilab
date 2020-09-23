@@ -307,8 +307,8 @@ export default function UserPage(props) {
     //start game
     database.ref('users/' + auth.currentUser.uid + '/playing').on('value', (snapshot) => {
         let val = snapshot.val();
-        // alert(val);
-        props.navigation.navigate('Chessboard');
+        if(val)
+            props.navigation.navigate('Chessboard');
     });
 
     const signOutUser = () => {
