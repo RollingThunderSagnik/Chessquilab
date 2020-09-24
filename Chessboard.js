@@ -21,7 +21,7 @@ const imgking = require('./assets/king.png');
 const tsize = chsize/8;
 
 var user = f.auth().currentUser;
-var userID, oppID, myout, enemyout;
+var userID, oppID, myout, enemyout, checker, boolKing;
 var name, email, photoUrl, uid, emailVerified;
 
 function rotateBoard(rawuserPos){
@@ -113,13 +113,7 @@ class Piece extends Component {
     EventRegister.emit('clearpos');
     var validmoves = this._getValidMoves(this.state.left,this.state.top);
     var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
-    if(hasKing())
-    {  
-      if(!checkKheyeche())
-        this.setState({nextmove: moves});
-    }
-    else
-      this.setState({nextmove: moves});
+    this.setState({nextmove: moves});
   }
 
   _getValidMoves(left,top)
@@ -234,6 +228,12 @@ class Pawn extends Piece {
      cutoff=1;
     }
     var validmoves=[];
+
+    //clear check
+
+
+    //default scenario
+
     for(let i=1;i<(2+cutoff);i++)
     {
       var saysaysay = {x:left, y:top-i};
@@ -312,7 +312,30 @@ class Bishop extends Piece {
   _getValidMoves(left,top)
   {
     var validmoves=[];
+    
+    //if king in check
+    if(hasKing)
+    {
+      if(checkKheyeche())
+      {
+        let sgnx = Math.sign(checker.x-left);
+        let sgny = Math.sign(checker.y-top);
+        console.log(sgnx, sgny);
+        if(Math.abs(sgnx/sgny)!=1)
+          return validmoves;
+        
+        for(let i=left,j=top;i!=(checker.x-sgnx) && j!=(checker.y-sgny);i+=sgnx, j+=sgny)
+        {
+          console.log('kira');
+        }
+        
+        validmoves = [{x:checker.x,y:checker.y}]
+        return validmoves;
+        
+      }
+    }
 
+    //normal scenario
     //going up-left
     for(let i=1;i<8;i++)
     {
@@ -349,18 +372,8 @@ class Bishop extends Piece {
   }
 }
 
-function wouldCheckMate(x,y){
-  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y-1))})) >= 0)
-    return true;
-  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y-1))})) >= 0)
-    return true;
-  // if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y+1))})) >= 0)
-  //   return true;
-  // if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y+1))})) >= 0)
-  //   return true;
-  return false;
-}
 
+//returns false if no check, returns position of checker if king in check
 function checkKheyeche()
 {
   let king ={};
@@ -374,8 +387,28 @@ function checkKheyeche()
     }
   } 
   // return false;
-  return wouldCheckMate(king.x,king.y);
+  // return ;
+  if(!wouldCheckMate(king.x,king.y))
+  {
+    return false;
+  }
+  checker = (rotateBoard(enemyPos).find( (piece) => {return ((piece.x==(king.x+1))&&(piece.y==(king.y-1)))}))
+  return checker;
 }
+
+//returns false if safe position
+function wouldCheckMate(x,y){
+  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y-1))})) >= 0)
+    return true;
+  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y-1))})) >= 0)
+    return true;
+  // if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y+1))})) >= 0)
+  //   return true;
+  // if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y+1))})) >= 0)
+  //   return true;
+  return false;
+}
+
 
 function hasKing()
 {
@@ -387,6 +420,7 @@ function hasKing()
   } 
   return false;
 } 
+
 
 function checkmove(say,vmoves)
 {
@@ -493,6 +527,30 @@ class Knight extends Piece {
   _getValidMoves(left,top)
   {
     var validmoves=[];
+    if(hasKing)
+    {
+      if(checkKheyeche())
+      {
+        console.log(checker);     
+        var kiws = [1,-1];
+
+        for(let i=1;i<3;i++)
+        {
+          for(let j=0;j<2;j++)
+          {
+            for(let k=0;k<2;k++)
+            {
+            var saysaysay = {x:left+kiws[k]*kiws[j]*(3-i), y:top+kiws[j]*i};
+            if(saysaysay.x == checker.x && saysaysay.y == checker.y)
+              validmoves.push(saysaysay);
+            }
+          }
+        }
+        return validmoves;
+        
+      }
+    }
+
     var kiws = [1,-1];
 
     for(let i=1;i<3;i++)
@@ -517,6 +575,7 @@ class Knight extends Piece {
   }
 
 }
+
 
 class King extends Piece {
   constructor(props){
@@ -596,6 +655,8 @@ class Chessboard extends Component {
           piecedeets : userPos
         });
       });
+
+      boolKing = hasKing();
     });
   }
 
@@ -669,11 +730,11 @@ class Chessboard extends Component {
   {
   if(hasKing())
   {
-    console.log(this._checkKing());
+    // console.log(this._checkKing());
   }
   else
   {
-    console.log(this._checkPawn());
+    // console.log(this._checkPawn());
   }
   }
 
