@@ -113,9 +113,13 @@ class Piece extends Component {
     EventRegister.emit('clearpos');
     var validmoves = this._getValidMoves(this.state.left,this.state.top);
     var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
-    this.setState({nextmove: moves});
-
-    // console.log(this.state.color);
+    if(hasKing())
+    {  
+      if(!checkKheyeche())
+        this.setState({nextmove: moves});
+    }
+    else
+      this.setState({nextmove: moves});
   }
 
   _getValidMoves(left,top)
@@ -145,7 +149,6 @@ class Piece extends Component {
     var indx = rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==nx)&&(piece.y==ny))});
     if(indx >= 0)
     {
-      // console.log({...enemyPos[indx]});
       enemyPos[indx].y = -1
       enemyPos[indx].x = 7
     }
@@ -351,34 +354,27 @@ function wouldCheckMate(x,y){
     return true;
   if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y-1))})) >= 0)
     return true;
-  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y+1))})) >= 0)
-    return true;
-  if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y+1))})) >= 0)
-    return true;
+  // if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x+1)&&(piece.y==y+1))})) >= 0)
+  //   return true;
+  // if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==x-1)&&(piece.y==y+1))})) >= 0)
+  //   return true;
   return false;
 }
- 
-function checkKing()
-{
-  return 'raja'
-}
 
-function checkPawn()
+function checkKheyeche()
 {
-  let haha = myout.length;
-  return (haha);
-}
-
-function checkLost()
-{
-  if(hasKing())
+  let king ={};
+  for(let i in userPos)
   {
-    console.log(checkKing());
-  }
-  else
-  {
-    console.log(checkPawn());
-  }
+    let item = userPos[i];
+    if(item.type==5)
+    {
+      king.y= item.y;
+      king.x= item.x;
+    }
+  } 
+  // return false;
+  return wouldCheckMate(king.x,king.y);
 }
 
 function hasKing()
@@ -386,7 +382,6 @@ function hasKing()
   for(let i in userPos)
   {
     let item = userPos[i];
-    // console.log(item.type); 
     if(item.type!=0)
       return true;
   } 
@@ -529,6 +524,16 @@ class King extends Piece {
     this.state.img =imgking;
   }
 
+  _onShowMoves(){
+    if(this.props.disabled)
+      return;
+    
+    EventRegister.emit('clearpos');
+    var validmoves = this._getValidMoves(this.state.left,this.state.top);
+    var moves = validmoves.map((cood) => <Pospos onPress={this._Move} key={validmoves.indexOf(cood)} top={cood.y} left={cood.x}></Pospos>);
+    this.setState({nextmove: moves});
+  }
+
   _getValidMoves(left,top)
   {
     var validmoves=[];
@@ -591,7 +596,6 @@ class Chessboard extends Component {
           piecedeets : userPos
         });
       });
-      // console.log(hasKing());
     });
   }
 
@@ -599,13 +603,78 @@ class Chessboard extends Component {
     database.ref('users/' + user.uid + '/turn').on('value', (snapshot)=> {
       let turnornot = snapshot.val();
       if(turnornot)
-        checkLost();
+        this._checkLost();
       this.setState({
         turn : turnornot
       });
   });
  
     
+  }
+
+  _checkPawn()
+  {
+  let haha = myout.length;
+  let hahu = userPos.length;
+  if(hahu==0)
+    return true;
+  
+  if(haha==hahu)
+    return false;
+  return true;
+  }
+
+  _checkKing()
+  {
+    let hahu = userPos.length;
+    if(hahu==0)
+      return true;
+      
+    let king ={x:-1,y:-1};
+    for(let i in userPos)
+    {
+      let item = userPos[i];
+      if(item.type==5)
+      {
+        king.y= item.y;
+        king.x= item.x;
+      }
+    } 
+    if(!wouldCheckMate(king.x,king.y))
+      return true;
+    
+    let kiws = [1,0,-1];
+
+    let flag=false;
+    for(let i=0;i<3;i++)
+    {
+      for(let j=0;j<3;j++)
+      {
+        var saysaysay = {x:king.x+kiws[i], y:king.y+kiws[j]};
+        if((userPos.findIndex( (piece) => {return ((piece.x==saysaysay.x)&&(piece.y==saysaysay.y))})) >= 0)
+          {}
+        else if(saysaysay.x >7 || saysaysay.x <0 || saysaysay.y>7 || saysaysay.y<0)
+          {}
+        else if(wouldCheckMate(saysaysay.x,saysaysay.y))
+          {}
+        else
+          flag=true;
+      }
+    }
+
+    return flag;
+  }
+
+  _checkLost()
+  {
+  if(hasKing())
+  {
+    console.log(this._checkKing());
+  }
+  else
+  {
+    console.log(this._checkPawn());
+  }
   }
 
   _getPawns (item,disabld)
@@ -662,8 +731,6 @@ class Chessboard extends Component {
     for(let i in this.state.enemydeets)
     {
       let item = this.state.enemydeets[i];
-      // console.log('item');
-      // console.log(item);
       if(item.y==-1)
       enemyout.push(this._getPawns(item,true));
     };
@@ -672,8 +739,6 @@ class Chessboard extends Component {
     for(let i in this.state.piecedeets)
     {
       let item = this.state.piecedeets[i];
-      // console.log('item');
-      // console.log(item);
       if(item.y==-1)
       myout.push(this._getPawns(item,true));
     };
