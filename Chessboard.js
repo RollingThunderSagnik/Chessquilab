@@ -6,6 +6,7 @@ import {f, auth, database} from './config/config';
 import { AppLoading } from 'expo';    
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'react-native-svg';
+import Popover from 'react-native-popover-view';
 
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
@@ -22,6 +23,7 @@ const tsize = chsize/8;
 
 var user = f.auth().currentUser;
 var userID, oppID, myout, enemyout, checker, boolKing;
+var checkList = [], checkRescue = [];
 var name, email, photoUrl, uid, emailVerified;
 
 function rotateBoard(rawuserPos){
@@ -96,8 +98,13 @@ class Piece extends Component {
 
   componentDidMount() {
     this.listener = EventRegister.addEventListener('checkChe', () => {
+      if(this.props.color != 'dark')
+      {
       let validmoves = this._getValidMoves(this.state.left,this.state.top);
-      console.log(validmoves.length);
+      if(validmoves.length != 0)
+        checkRescue.push(this.props.id);
+      checkList.push(('id' + this.props.id));
+      }
     });
     this.listener = EventRegister.addEventListener('clearpos', () => {
         this.setState({
@@ -122,15 +129,16 @@ class Piece extends Component {
 
   _getValidMoves(left,top)
   {
-    var move =[{x: left, y:top-1},{x: left, y:top-2}]
-      var validmoves=[];
-      for(let i=0;i<move.length;i++)
-      {
-        var indx = (userPos.findIndex( (piece) => {return ((piece.x==move[i].x)&&(piece.y==move[i].y))}));
-        if(indx == -1)
-          validmoves.push(move[i]);
-      }
-    return validmoves;
+    // var move =[{x: left, y:top-1},{x: left, y:top-2}]
+    //   var validmoves=[];
+    //   for(let i=0;i<move.length;i++)
+    //   {
+    //     var indx = (userPos.findIndex( (piece) => {return ((piece.x==move[i].x)&&(piece.y==move[i].y))}));
+    //     if(indx == -1)
+    //       validmoves.push(move[i]);
+    //   }
+
+    return [1,2,3,4,5];
   }
 
   componentDidUpdate(prevProps) {
@@ -224,11 +232,10 @@ class Pawn extends Piece {
     var validmoves=[];
 
     let cutoff=0;
-    if(hasKing())
+    if(boolKing)
     {
       if(checkKheyeche())
       {
-        // console.log(checker);
         if(checker.y != top-1)
           return validmoves;
         if(Math.abs(checker.x-left) != 1)
@@ -283,34 +290,30 @@ class Rook extends Piece {
   {
     var validmoves=[];
     //if king in check
-    if(hasKing)
+    if(checkKheyeche())
     {
-      if(checkKheyeche())
-      {
-        let sgnx = checker.x-left;
-        let sgny = checker.y-top;
-        // console.log(sgnx, sgny);
-        if(sgnx!=0 && sgny!=0)
-          return validmoves;
-        sgnx = Math.sign(sgnx);
-        sgny = Math.sign(sgny);
-
-        // console.log(left+sgnx,top+sgny);
-        // console.log(checker.x,checker.y);
-        
-        for(let i=left+sgnx,j=top+sgny;i!=(checker.x) || j!=(checker.y);i+=sgnx, j+=sgny)
-        {
-          // validmoves.push({x:i,y:j});
-          if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-            return validmoves;
-          else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-            return validmoves;  
-          // console.log(i,j);
-        }
-
-        validmoves.push({x:checker.x,y:checker.y});
+      let sgnx = checker.x-left;
+      let sgny = checker.y-top;
+      if(sgnx!=0 && sgny!=0)
         return validmoves;
+      sgnx = Math.sign(sgnx);
+      sgny = Math.sign(sgny);
+
+      // console.log(left+sgnx,top+sgny);
+      // console.log(checker.x,checker.y);
+      
+      for(let i=left+sgnx,j=top+sgny;i!=(checker.x) || j!=(checker.y);i+=sgnx, j+=sgny)
+      {
+        // validmoves.push({x:i,y:j});
+        if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+          return validmoves;
+        else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+          return validmoves;  
+        // console.log(i,j);
       }
+
+      validmoves.push({x:checker.x,y:checker.y});
+      return validmoves;
     }
 
     //normal
@@ -361,31 +364,28 @@ class Bishop extends Piece {
     var validmoves=[];
     
     //if king in check
-    if(hasKing)
+    if(checkKheyeche())
     {
-      if(checkKheyeche())
-      {
-        let sgnx = checker.x-left;
-        let sgny = checker.y-top;
-        // console.log(sgnx, sgny);
-        if(Math.abs(sgnx/sgny)!=1)
-          return validmoves;
-        sgnx = Math.sign(sgnx);
-        sgny = Math.sign(sgny);
-
-        for(let i=left+sgnx,j=top+sgny;i!=(checker.x) && j!=(checker.y);i+=sgnx, j+=sgny)
-        {
-          // validmoves.push({x:i,y:j});
-          if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-            return validmoves;
-          else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-            return validmoves;  
-          // console.log(i,j);
-        }
-        
-        validmoves = [{x:checker.x,y:checker.y}]
+      let sgnx = checker.x-left;
+      let sgny = checker.y-top;
+      // console.log(sgnx, sgny);
+      if(Math.abs(sgnx/sgny)!=1)
         return validmoves;
+      sgnx = Math.sign(sgnx);
+      sgny = Math.sign(sgny);
+
+      for(let i=left+sgnx,j=top+sgny;i!=(checker.x) && j!=(checker.y);i+=sgnx, j+=sgny)
+      {
+        // validmoves.push({x:i,y:j});
+        if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+          return validmoves;
+        else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+          return validmoves;  
+        // console.log(i,j);
       }
+      
+      validmoves = [{x:checker.x,y:checker.y}]
+      return validmoves;
     }
 
     //normal scenario
@@ -505,54 +505,51 @@ class Queen extends Piece {
     var validmoves=[];
 
         //if king in check
-        if(hasKing)
+        if(checkKheyeche())
         {
-          if(checkKheyeche())
+          let sgnx = checker.x-left;
+          let sgny = checker.y-top;
+          let flag=true;
+          // console.log(sgnx, sgny);
+          if(sgnx==0 || sgny==0)
           {
-            let sgnx = checker.x-left;
-            let sgny = checker.y-top;
-            let flag=true;
-            // console.log(sgnx, sgny);
-            if(sgnx==0 || sgny==0)
-            {
-              sgnx = Math.sign(sgnx);
-              sgny = Math.sign(sgny);
-      
-              // console.log(left+sgnx,top+sgny);
-              // console.log(checker.x,checker.y);
-              
-              for(let i=left+sgnx,j=top+sgny;i!=(checker.x) || j!=(checker.y);i+=sgnx, j+=sgny)
-              {
-                // validmoves.push({x:i,y:j});
-                if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-                  flag=false;
-                else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-                  flag=false;
-                // console.log(i,j);
-              }
-            }
-            else if(Math.abs(sgnx/sgny)==1)
-            {
-              sgnx = Math.sign(sgnx);
-              sgny = Math.sign(sgny);
-      
-              for(let i=left+sgnx,j=top+sgny;i!=(checker.x) && j!=(checker.y);i+=sgnx, j+=sgny)
-              {
-                // validmoves.push({x:i,y:j});
-                if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-                  flag=false;
-                else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
-                  flag=false;
-                // console.log(i,j);
-              }
-            }
-            else
-              flag=false;
+            sgnx = Math.sign(sgnx);
+            sgny = Math.sign(sgny);
+    
+            // console.log(left+sgnx,top+sgny);
+            // console.log(checker.x,checker.y);
             
-            if(flag)
-              validmoves.push({x:checker.x,y:checker.y});
-            return validmoves;
+            for(let i=left+sgnx,j=top+sgny;i!=(checker.x) || j!=(checker.y);i+=sgnx, j+=sgny)
+            {
+              // validmoves.push({x:i,y:j});
+              if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+                flag=false;
+              else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+                flag=false;
+              // console.log(i,j);
+            }
           }
+          else if(Math.abs(sgnx/sgny)==1)
+          {
+            sgnx = Math.sign(sgnx);
+            sgny = Math.sign(sgny);
+    
+            for(let i=left+sgnx,j=top+sgny;i!=(checker.x) && j!=(checker.y);i+=sgnx, j+=sgny)
+            {
+              // validmoves.push({x:i,y:j});
+              if((userPos.findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+                flag=false;
+              else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
+                flag=false;
+              // console.log(i,j);
+            }
+          }
+          else
+            flag=false;
+          
+          if(flag)
+            validmoves.push({x:checker.x,y:checker.y});
+          return validmoves;
         }
 
     //normal
@@ -635,28 +632,25 @@ class Knight extends Piece {
   _getValidMoves(left,top)
   {
     var validmoves=[];
-    if(hasKing)
+    if(checkKheyeche())
     {
-      if(checkKheyeche())
-      {
-        // console.log(checker);     
-        var kiws = [1,-1];
+      // console.log(checker);     
+      var kiws = [1,-1];
 
-        for(let i=1;i<3;i++)
+      for(let i=1;i<3;i++)
+      {
+        for(let j=0;j<2;j++)
         {
-          for(let j=0;j<2;j++)
+          for(let k=0;k<2;k++)
           {
-            for(let k=0;k<2;k++)
-            {
-            var saysaysay = {x:left+kiws[k]*kiws[j]*(3-i), y:top+kiws[j]*i};
-            if(saysaysay.x == checker.x && saysaysay.y == checker.y)
-              validmoves.push(saysaysay);
-            }
+          var saysaysay = {x:left+kiws[k]*kiws[j]*(3-i), y:top+kiws[j]*i};
+          if(saysaysay.x == checker.x && saysaysay.y == checker.y)
+            validmoves.push(saysaysay);
           }
         }
-        return validmoves;
-        
       }
+      return validmoves;
+      
     }
 
     var kiws = [1,-1];
@@ -738,7 +732,10 @@ class Chessboard extends Component {
 
   constructor(props)
   {
+
     super(props);
+    this._gameLost = this._gameLost.bind(this);
+    
     database.ref('users/' + user.uid).once('value')
     .then((snapshot)=> {
       this.setState({
@@ -799,15 +796,44 @@ class Chessboard extends Component {
     if(hahu==0)
       console.log(true);
 
-    if(hasKing())
+    let lost;
+
+    if(boolKing)
     {
+      checkList = [];
+      checkRescue = [];
+      console.log('hahutas suru');
       EventRegister.emit('checkChe');
       // console.log(this._checkKing());
+      console.log(checkList.length);
+      lost = (checkRescue.length==0);
     }
     else
     {
       // console.log(this._checkPawn());
     }
+
+    if(lost)
+    {
+      this.setState({
+        lost: lost
+      });
+      // database.ref('users/' + userID ).update({
+      //   playing: false
+      // });
+    }
+
+  }
+
+  _gameLost()
+  {
+    database.ref('users/' + userID ).update({
+      playing: false
+    });
+    this.setState({
+      lost: false
+    });
+    this.props.exitapp();
   }
 
   _getPawns (item,disabld)
@@ -826,9 +852,6 @@ class Chessboard extends Component {
       case 5:
         return <King disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
     }
-  }
-
-  componentWillUnmount() {
   }
 
   render()
@@ -878,6 +901,21 @@ class Chessboard extends Component {
 
     return (
     <>
+    <Popover 
+        placement={"center"}
+        isVisible={this.state.lost} 
+        popoverStyle={{
+            padding: 20,
+            borderRadius: 22,
+            backgroundColor: 'white',
+        }}
+        backgroundStyle={{
+            backgroundColor: 'rgba(0,0,0,0.5)'
+        }}
+        onRequestClose={this._gameLost}
+    >
+             <Text>you lost</Text>           
+    </Popover>
     {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
     {myout.length==0?<></>:<View style={styles.myout}>{myout}</View>}
     <View style={{
@@ -926,6 +964,10 @@ export default function ChessScreen(props) {
         return true;
     }
 
+    const chalChale = () => {
+      props.navigation.goBack(); 
+    }
+
     useEffect(() => {
         props.navigation.addListener('focus', () => {
             BackHandler.addEventListener('hardwareBackPress', handleBackButton)
@@ -945,7 +987,7 @@ export default function ChessScreen(props) {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <Chessboard exitapp={handleBackButton}></Chessboard>
+        <Chessboard exitapp={chalChale}></Chessboard>
       </View>
       </>);
 }
