@@ -67,6 +67,18 @@ class ReceivedGameCard extends Component {
         database.ref('users/' + this.props.to).update({
             opponent : this.props.from
         });
+
+        database.ref('users/' + this.props.to + '/matches').once('value')
+        .then((snapshot)=> {
+            if(snapshot)
+                database.ref('users/' + this.props.to + '/matches').set((snapshot.val() + 1));
+        });
+
+        database.ref('users/' + this.props.from + '/matches').once('value')
+        .then((snapshot)=> {
+            if(snapshot)
+                database.ref('users/' + this.props.from + '/matches').set((snapshot.val() + 1));
+        });
         // this.props.navigation.navigate('Chessboard');
     }
 

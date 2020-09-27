@@ -7,6 +7,7 @@ import { AppLoading } from 'expo';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'react-native-svg';
 import Popover from 'react-native-popover-view';
+import Result from './resultMessage';
 
 
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
@@ -24,7 +25,6 @@ const tsize = chsize/8;
 var user = f.auth().currentUser;
 var userID, oppID, myout, enemyout, checker, boolKing;
 var checkList = [], checkRescue = [];
-var name, email, photoUrl, uid, emailVerified;
 
 function rotateBoard(rawuserPos){
   var uPos = JSON.parse(JSON.stringify(rawuserPos));
@@ -203,8 +203,8 @@ class Piece extends Component {
       <ImageBackground source={this.state.img} style={{
         margin: 0,
         padding: 0,
-        width: tsize,
-        height: tsize,
+        width: tsize*0.7,
+        height: tsize*0.7,
       }}>
         <Text>
           {/* {this.state.left + "," + this.state.top+"\n"+this.props.id} */}
@@ -728,6 +728,7 @@ class Chessboard extends Component {
     piecedeets : userPos,
     enemydeets : rotateBoard(enemyPos),
     turn: true,
+    winner: false
   }
 
   constructor(props)
@@ -759,6 +760,16 @@ class Chessboard extends Component {
         this.setState({
           piecedeets : userPos
         });
+      });
+
+      database.ref('users/' + user.uid + '/winner').on('value', (snapshot)=> {
+        if(snapshot.val()==true)
+        {
+          this.setState({
+            matchEnd: true,
+            winner: true
+          });
+        }
       });
 
       boolKing = hasKing();
@@ -816,11 +827,15 @@ class Chessboard extends Component {
     if(lost)
     {
       this.setState({
-        lost: lost
+        matchEnd: true
       });
-      // database.ref('users/' + userID ).update({
-      //   playing: false
-      // });
+      database.ref('users/' + oppID + '/won').once('value')
+        .then((snapshot)=> {
+            if(snapshot)
+                database.ref('users/' + oppID + '/won').set((snapshot.val() + 1));
+      });
+      database.ref('users/' + oppID + '/winner').set(true);
+      
     }
 
   }
@@ -828,10 +843,11 @@ class Chessboard extends Component {
   _gameLost()
   {
     database.ref('users/' + userID ).update({
-      playing: false
+      playing: false,
+      winner : false
     });
     this.setState({
-      lost: false
+      matchEnd: false
     });
     this.props.exitapp();
   }
@@ -903,7 +919,7 @@ class Chessboard extends Component {
     <>
     <Popover 
         placement={"center"}
-        isVisible={this.state.lost} 
+        isVisible={this.state.matchEnd} 
         popoverStyle={{
             padding: 20,
             borderRadius: 22,
@@ -914,7 +930,8 @@ class Chessboard extends Component {
         }}
         onRequestClose={this._gameLost}
     >
-             <Text>you lost</Text>           
+        <Result result={this.state.winner}></Result>
+             
     </Popover>
     {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
     {myout.length==0?<></>:<View style={styles.myout}>{myout}</View>}

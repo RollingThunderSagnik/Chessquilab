@@ -46,6 +46,17 @@ class UserHeader extends Component {
         this.state.wins = 20;
         this.state.losses = 20;
         this.state.witch = true;
+
+        database.ref('users/' + this.state.uid).once('value')
+        .then((snapshot)=> {
+            if(snapshot){
+                this.setState({
+                    matches : snapshot.val().matches,
+                    wins : snapshot.val().won,
+                });
+            }
+            
+        });
     }
 
     _signOutUser = () => {
