@@ -6,29 +6,30 @@ import { AppLoading } from 'expo';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import * as Facebook from 'expo-facebook';
+import * as Google from 'expo-google-app-auth';
 
 function Doorway({navigation}) {
 
-    
     // Login with Facebook
-    // async function loginWithFacebook(){
-    //     const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync(
-    //         '421489402152235',
-    //         {
-    //             permissions: [
-    //             'email',
-    //             'public_profile'
-    //             ]
-    //         }
-    //     );
+    async function loginWithFacebook(){
+        const {type, token} = await Facebook.logInWithReadPermissionsAsync(
+            '421489402152235',
+            {
+                permissions: [
+                'email',
+                'public_profile'
+                ]
+            }
+        );
 
-    //     if(type === 'success'){        
-    //         const credentials = f.auth.FacebookAuthProvider.credential(token);
-    //         f.auth().signInWithCredential(credentials).catch((error) => {
-    //             console.log('Error: ', error);
-    //         })
-    //     }
-    // }
+        if(type === 'success'){        
+            const credentials = f.auth.FacebookAuthProvider.credential(token);
+            f.auth().signInWithCredential(credentials).catch((error) => {
+                console.log('Error: ', error);
+            })
+        }
+    }
 
     f.auth().onAuthStateChanged(function(user) {
         if(user){
@@ -158,9 +159,8 @@ function Doorway({navigation}) {
                     borderRadius: 20
                 }}
                 onPress={() => {
-                    // () => loginWithFacebook(),
-                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton),
-                    navigation.navigate('SignUp')           
+                    loginWithFacebook,
+                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
                 }}
             >
                 <Feather name="facebook" size={20} color="white" />
@@ -176,8 +176,7 @@ function Doorway({navigation}) {
                     borderRadius: 20
                 }}
                 onPress={() => {
-                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton),
-                    navigation.navigate('SignUp')
+                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
                 }}
             >
                 <FontAwesome name="google" size={20} color="white" />
