@@ -3,8 +3,32 @@ import { View, Text, TouchableOpacity, StatusBar, BackHandler, Alert } from 'rea
 import {f, auth, database} from './config/config';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
+import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 function Doorway({navigation}) {
+
+    
+    // Login with Facebook
+    // async function loginWithFacebook(){
+    //     const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync(
+    //         '421489402152235',
+    //         {
+    //             permissions: [
+    //             'email',
+    //             'public_profile'
+    //             ]
+    //         }
+    //     );
+
+    //     if(type === 'success'){        
+    //         const credentials = f.auth.FacebookAuthProvider.credential(token);
+    //         f.auth().signInWithCredential(credentials).catch((error) => {
+    //             console.log('Error: ', error);
+    //         })
+    //     }
+    // }
 
     f.auth().onAuthStateChanged(function(user) {
         if(user){
@@ -122,6 +146,41 @@ function Doorway({navigation}) {
                 >
                     Sign Up
                 </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={{
+                    borderColor: 'white',
+                    borderWidth: 2,
+                    paddingHorizontal: 53,
+                    paddingVertical: 8.5,
+                    margin: 10,
+                    borderRadius: 20
+                }}
+                onPress={() => {
+                    // () => loginWithFacebook(),
+                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton),
+                    navigation.navigate('SignUp')           
+                }}
+            >
+                <Feather name="facebook" size={20} color="white" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={{
+                    borderColor: 'white',
+                    borderWidth: 2,
+                    paddingHorizontal: 54,
+                    paddingVertical: 8.5,
+                    margin: 10,
+                    borderRadius: 20
+                }}
+                onPress={() => {
+                    BackHandler.removeEventListener('hardwareBackPress', handleBackButton),
+                    navigation.navigate('SignUp')
+                }}
+            >
+                <FontAwesome name="google" size={20} color="white" />
             </TouchableOpacity>
         </View>
         </View>
