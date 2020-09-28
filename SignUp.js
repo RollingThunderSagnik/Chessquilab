@@ -41,6 +41,8 @@ const SignUp = ({ navigation }) => {
                     }).then(() => console.log(auth.currentUser.displayName))
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/name').set(fullname)})
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/online').set(true)})
+                    .then(() => {database.ref('users/' + auth.currentUser.uid + '/won').set(0)})
+                    .then(() => {database.ref('users/' + auth.currentUser.uid + '/matches').set(0)})
                     .catch((error) => console.log('error logging in', error)); 
                     setData({
                         ...data,

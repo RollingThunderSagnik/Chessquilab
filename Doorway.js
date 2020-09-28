@@ -6,12 +6,13 @@ import { AppLoading } from 'expo';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import * as Facebook from 'expo-facebook';
-import * as Google from 'expo-google-app-auth';
+// import * as Facebook from 'expo-facebook';
+// import * as Google from 'expo-google-app-auth';
 
 function Doorway({navigation}) {
 
     // Login with Facebook
+    /*
     async function loginWithFacebook(){
         const {type, token} = await Facebook.logInWithReadPermissionsAsync(
             '421489402152235',
@@ -30,6 +31,7 @@ function Doorway({navigation}) {
             })
         }
     }
+    */
 
     f.auth().onAuthStateChanged(function(user) {
         if(user){
@@ -86,14 +88,13 @@ function Doorway({navigation}) {
                 backgroundColor: 'black'
             }}
         >
-        <TouchableOpacity
+        <View
             style={{
                 top: 160
             }}
-            onPress={() => navigation.navigate('Chessboard')}
-        >
+            >
             <Text style={{fontFamily: 'Monoton', fontSize: 28, color: 'white'}}>CHESSQUILAB</Text>
-        </TouchableOpacity>
+        </View>
         <View
             style={{
                 flex: 1,
@@ -148,7 +149,7 @@ function Doorway({navigation}) {
                     Sign Up
                 </Text>
             </TouchableOpacity>
-
+            {/*
             <TouchableOpacity
                 style={{
                     borderColor: 'white',
@@ -181,6 +182,7 @@ function Doorway({navigation}) {
             >
                 <FontAwesome name="google" size={20} color="white" />
             </TouchableOpacity>
+            */}
         </View>
         </View>
         </>

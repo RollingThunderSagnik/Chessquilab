@@ -45,11 +45,11 @@ class ReceivedGameCard extends Component {
     _accept()
     {
 
-        // alert(this.state.id);
-        // database.ref('gameRequests/'+this.state.id).remove()
-        // .then(() => {
-        //     console.log(this.state.id);
-        // });
+        alert(this.state.id);
+        database.ref('gameRequests/'+this.state.id).remove()
+        .then(() => {
+            // console.log(this.state.id);
+        });
         database.ref('users/' + this.props.prole).update({
             position : prolePos,
             playing : true,

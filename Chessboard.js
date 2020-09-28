@@ -299,8 +299,6 @@ class Rook extends Piece {
       sgnx = Math.sign(sgnx);
       sgny = Math.sign(sgny);
 
-      // console.log(left+sgnx,top+sgny);
-      // console.log(checker.x,checker.y);
       
       for(let i=left+sgnx,j=top+sgny;i!=(checker.x) || j!=(checker.y);i+=sgnx, j+=sgny)
       {
@@ -309,7 +307,6 @@ class Rook extends Piece {
           return validmoves;
         else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
           return validmoves;  
-        // console.log(i,j);
       }
 
       validmoves.push({x:checker.x,y:checker.y});
@@ -368,7 +365,6 @@ class Bishop extends Piece {
     {
       let sgnx = checker.x-left;
       let sgny = checker.y-top;
-      // console.log(sgnx, sgny);
       if(Math.abs(sgnx/sgny)!=1)
         return validmoves;
       sgnx = Math.sign(sgnx);
@@ -381,7 +377,6 @@ class Bishop extends Piece {
           return validmoves;
         else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
           return validmoves;  
-        // console.log(i,j);
       }
       
       validmoves = [{x:checker.x,y:checker.y}]
@@ -448,7 +443,7 @@ function checkKheyeche()
   checker = (rotateBoard(enemyPos).find( (piece) => {return ((piece.x==(king.x+1))&&(piece.y==(king.y-1)))}))
   if(!checker)
     checker = (rotateBoard(enemyPos).find( (piece) => {return ((piece.x==(king.x-1))&&(piece.y==(king.y-1)))}))
-  // console.log(checker);
+  
   return checker;
 }
 
@@ -510,14 +505,11 @@ class Queen extends Piece {
           let sgnx = checker.x-left;
           let sgny = checker.y-top;
           let flag=true;
-          // console.log(sgnx, sgny);
           if(sgnx==0 || sgny==0)
           {
             sgnx = Math.sign(sgnx);
             sgny = Math.sign(sgny);
     
-            // console.log(left+sgnx,top+sgny);
-            // console.log(checker.x,checker.y);
             
             for(let i=left+sgnx,j=top+sgny;i!=(checker.x) || j!=(checker.y);i+=sgnx, j+=sgny)
             {
@@ -526,7 +518,6 @@ class Queen extends Piece {
                 flag=false;
               else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
                 flag=false;
-              // console.log(i,j);
             }
           }
           else if(Math.abs(sgnx/sgny)==1)
@@ -541,7 +532,6 @@ class Queen extends Piece {
                 flag=false;
               else if((rotateBoard(enemyPos).findIndex( (piece) => {return ((piece.x==i)&&(piece.y==j))})) >= 0)
                 flag=false;
-              // console.log(i,j);
             }
           }
           else
@@ -633,8 +623,7 @@ class Knight extends Piece {
   {
     var validmoves=[];
     if(checkKheyeche())
-    {
-      // console.log(checker);     
+    {    
       var kiws = [1,-1];
 
       for(let i=1;i<3;i++)
@@ -728,11 +717,19 @@ class Chessboard extends Component {
     piecedeets : userPos,
     enemydeets : rotateBoard(enemyPos),
     turn: true,
-    winner: false
+    winner: false,
   }
 
   constructor(props)
   {
+    user = auth.currentUser;
+    f.auth().onAuthStateChanged(function(ussr) {
+      if (ussr) {
+        user = ussr;
+        userID = user.uid;
+      } else {
+      }
+    });
 
     super(props);
     this._gameLost = this._gameLost.bind(this);
@@ -792,8 +789,8 @@ class Chessboard extends Component {
   let haha = myout.length;
   let hahu = userPos.length;  
   if(haha==hahu)
-    return false;
-  return true;
+    return true;
+  return false;
   }
 
   _checkKing()
@@ -805,7 +802,7 @@ class Chessboard extends Component {
   {
     let hahu = userPos.length;
     if(hahu==0)
-      console.log(true);
+      return;
 
     let lost;
 
@@ -813,14 +810,15 @@ class Chessboard extends Component {
     {
       checkList = [];
       checkRescue = [];
-      console.log('hahutas suru');
+      // console.log('hahutas suru');
       EventRegister.emit('checkChe');
       // console.log(this._checkKing());
-      console.log(checkList.length);
+      // console.log(checkList.length);
       lost = (checkRescue.length==0);
     }
     else
     {
+      lost = this._checkPawn();
       // console.log(this._checkPawn());
     }
 
@@ -953,13 +951,7 @@ class Chessboard extends Component {
   }
 }
 
-f.auth().onAuthStateChanged(function(ussr) {
-  if (ussr) {
-    user = ussr;
-    userID = user.uid;
-  } else {
-  }
-});
+
 
 export default function ChessScreen(props) {
 

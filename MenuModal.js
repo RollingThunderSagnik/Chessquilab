@@ -69,7 +69,7 @@ class MenuModal extends Component {
       {value: 0, label: 'Black Lives Matter'},
       {value: 1, label: 'Nandigram'},
       {value: 2, label: 'Naxalbari'},
-      {value: 3, label: 'October Revolution'}
+      // {value: 3, label: 'October Revolution'}
     ];
     const { scenario } = this.state;
 

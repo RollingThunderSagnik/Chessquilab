@@ -42,20 +42,18 @@ class UserHeader extends Component {
                 // marginHorizontal: 12
             },
         }
-        this.state.matches = 40;
-        this.state.wins = 20;
-        this.state.losses = 20;
+        this.state.matches = 0;
+        this.state.wins = 0;
+        this.state.losses = 0;
         this.state.witch = true;
 
-        database.ref('users/' + this.state.uid).once('value')
-        .then((snapshot)=> {
+        database.ref('users/' + this.state.uid).on('value',(snapshot)=> {
             if(snapshot){
                 this.setState({
-                    matches : snapshot.val().matches,
-                    wins : snapshot.val().won,
+                    matches : snapshot.val().matches || 0,
+                    wins : snapshot.val().won || 0,
                 });
             }
-            
         });
     }
 
@@ -65,6 +63,8 @@ class UserHeader extends Component {
 
     componentDidMount(){
 
+
+
         f.auth().onAuthStateChanged( (user)=> {
             if (user) {
                 this.setState({
@@ -73,12 +73,12 @@ class UserHeader extends Component {
                 });
             }
         });
-        // database.ref('users/' + this.state.uid +'/name').on('value', (snapshot) => {
-        //     this.setState({
-        //         name: snapshot.val()
-        //     });
-        //     console.log(snapshot.val());
-        // });
+        database.ref('users/' + this.state.uid +'/name').on('value', (snapshot) => {
+            this.setState({
+                name: snapshot.val()
+            });
+            console.log(snapshot.val());
+        });
     }
 
     render()

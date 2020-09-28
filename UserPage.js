@@ -38,7 +38,7 @@ class SentReqsTab extends Component {
             for(var req in reqs)
             {
                 let game = {...reqs[req],id:req};
-                console.log(game);
+                // console.log(game);
                 if(auth.currentUser){
                     if(game.from == auth.currentUser.uid)
                         onliners.push(game);
@@ -85,7 +85,7 @@ class RecReqsTab extends Component {
             for(var req in reqs)
             {
                 let game = {...reqs[req],id:req};
-                console.log(game);
+                // console.log(game);
                 if(auth.currentUser){
                     if(game.to == auth.currentUser.uid)
                         onliners.push(game);
@@ -241,7 +241,6 @@ class ActivePlayersTab extends Component {
                 if(auth.currentUser){
                     if(user != auth.currentUser.uid)
                         onliners.push({id: user, ...users[user]});
-                    // console.log({id: user, ...users[user]});
                 }
             }
             this.setState({
