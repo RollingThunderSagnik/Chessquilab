@@ -1,11 +1,9 @@
 import React, {Component} from 'react';
-import { View, Text, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import {f, auth, database} from './config/config';
 import Feather from 'react-native-vector-icons/Feather';
-import userimagepawn from './assets/userimagepawn.png';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -97,18 +95,19 @@ class UserHeader extends Component {
         }}
         >CHESSQUILAB</Text>);
 
-        var options = (
-        <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 3}}>
-            <TouchableOpacity 
-            style={{height:25, marginHorizontal: 8, borderColor: 'white', borderWidth: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: 'white',  fontFamily: 'TTNorms-Regular', fontSize: 13, paddingHorizontal: 8}}>Change Avatar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this._signOutUser()}  
-            style={{marginHorizontal: 8, borderColor: 'white', borderWidth: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: 'white',  fontFamily: 'TTNorms-Regular', fontSize: 13, paddingHorizontal: 30}}>Log Out</Text>
-            </TouchableOpacity>
-        </View>
-    );
+        // var options = (
+        //     <View style={{flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 3}}>
+        //         <TouchableOpacity 
+        //         style={{height:25, marginHorizontal: 8, borderColor: 'white', borderWidth: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
+        //             <Text style={{color: 'white',  fontFamily: 'TTNorms-Regular', fontSize: 13, paddingHorizontal: 8}}>Change Avatar</Text>
+        //         </TouchableOpacity>
+        //         <TouchableOpacity onPress={() => this._signOutUser()}  
+        //         style={{marginHorizontal: 8, borderColor: 'white', borderWidth: 1, borderRadius: 8, justifyContent: 'center', alignItems: 'center'}}>
+        //             <Text style={{color: 'white',  fontFamily: 'TTNorms-Regular', fontSize: 13, paddingHorizontal: 30}}>Log Out</Text>
+        //         </TouchableOpacity>
+        //     </View>
+        // );
+
         return (
         <View style={{
             marginBottom: 20,
@@ -127,11 +126,15 @@ class UserHeader extends Component {
             // backgroundColor: '#222'
         }}>
         <Text 
+            // numberOfLines={2}
+            // adjustsFontSizeToFit
+            // allowFontScaling
+            // textBreakStrategy='simple'
             style={{
                 fontFamily: 'Gilroy-ExtraBold',
                 color: '#333',
                 fontSize: 80
-                }}>
+            }}>
                 {this.state.name}
             </Text>
         </View>
@@ -139,21 +142,18 @@ class UserHeader extends Component {
        
         {/* title */}
         <View style={{
+            alignItems: 'center',
             flexDirection: 'row',
-            // justifyContent: 'space-around',
-            // alignItems: 'center',
-            // backgroundColor: '#222',
             paddingVertical: 12,
-            // margin: 0
         }}>
             
             <View style={{flex: 3, }}>
-                {this.state.witch?title:options}
+                {title}
             </View>
             <View style={{flex: 1, alignItems: 'flex-end', paddingRight:12}}>
-            <TouchableOpacity onPress={() => this.setState({ witch : !this.state.witch})} style={{}} >
-                    <Feather name="more-vertical" stroke-width={3} size={25} color="white" />
-            </TouchableOpacity>
+                <TouchableOpacity onPress={() => this._signOutUser()} >
+                    <Feather name="log-out" stroke-width={3} size={25} color="white" />
+                </TouchableOpacity> 
             </View>
         </View>
         

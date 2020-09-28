@@ -38,7 +38,8 @@ const SignUp = ({ navigation }) => {
                         return result.user.updateProfile({
                             displayName: fullname
                         })
-                    }).then(() => console.log(auth.currentUser.displayName))
+                    })
+                    .then(() => console.log(auth.currentUser.displayName))
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/name').set(fullname)})
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/online').set(true)})
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/won').set(0)})
