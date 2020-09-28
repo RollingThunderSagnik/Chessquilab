@@ -6,6 +6,7 @@ import {f, auth, database} from './config/config';
 import { useFonts } from '@use-expo/font';
 import { AppLoading } from 'expo';
 import Popover, { PopoverMode, PopoverPlacement } from 'react-native-popover-view';
+import { DotsLoader } from 'react-native-indicator';
 
 const SignUp = ({ navigation }) => {
 
@@ -26,13 +27,18 @@ const SignUp = ({ navigation }) => {
         showPopoverFullName: false,
         showPopoverEmail: false,
         showPopoverConfirmPassword: false,
-        error: 'Invalid Input'
+        error: 'Invalid Input',
+        loading: false
     });
 
     const SignUpUser = async(email, password, confirm_password, fullname) => {
         if (fullname != ''){
             if(password === confirm_password){
                 if (email != '' && password != '' && email.includes('@') && password.length >= 8 && email.includes('.')){                
+                    setData({
+                        ...data,
+                        loading: true
+                    });
                     await auth.createUserWithEmailAndPassword(email, password)
                     .then((result) => {
                         return result.user.updateProfile({
@@ -45,10 +51,15 @@ const SignUp = ({ navigation }) => {
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/won').set(0)})
                     .then(() => {database.ref('users/' + auth.currentUser.uid + '/matches').set(0)})
                     .catch((error) => console.log('error logging in', error)); 
-                    setData({
-                        ...data,
-                        signedUp: true
+                    f.auth().onAuthStateChanged(function(user) {
+                        if(user){
+                            setData({
+                                ...data,
+                                signedUp: true
+                            })
+                        }
                     });
+                    
                 } else {
                     setData({
 					    ...data,
@@ -352,45 +363,48 @@ const SignUp = ({ navigation }) => {
                         }
                     </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity
-                    style={{
-                        borderColor: 'white',
-                        borderWidth: 2,
-                        paddingHorizontal: 47,
-                        padding: 10,
-                        margin: 10,
-                        borderRadius: 20,
-                        marginTop: 40
-                    }}
-                    onPress={() => SignUpUser(data.email, data.password, data.confirm_password, data.fullname)}
-                >
-                    <Text
+                
+                <View>
+                {
+                    data.loading ?
+                    <View
+                        style={{                                                     
+                            paddingHorizontal: 47,
+                            padding: 10,
+                            margin: 10,                            
+                            marginTop: 40
+                        }}
+                    >
+                        <DotsLoader
+                            color='white'
+                        />                        
+                    </View>
+                    :
+                    <TouchableOpacity
                         style={{
-                            color: 'white',
-                            fontFamily: 'Carme'
+                            borderColor: 'white',
+                            borderWidth: 2,
+                            paddingHorizontal: 47,
+                            padding: 10,
+                            margin: 10,
+                            borderRadius: 20,
+                            marginTop: 40
                         }}
+                        onPress={() => SignUpUser(data.email, data.password, data.confirm_password, data.fullname)}
                     >
-                        Sign Up
-                    </Text>
-                    {/* <Popover 
-                        placement={"center"}
-                        isVisible={data.showPopover} 
-                        popoverStyle={{
-                            padding: 40,
-                            borderRadius: 22,
-                            backgroundColor: 'white',
-                        }}
-                        backgroundStyle={{
-                            backgroundColor: 'rgba(0,0,0,0.9)'
-                        }}
-                        onRequestClose={() => setData({...data, showPopover: false})}
-                    >
-                        <Text style={{fontFamily: 'Carme'}}>
-                            {data.error}
+                        <Text
+                            style={{
+                                color: 'white',
+                                fontFamily: 'Carme'
+                            }}
+                        >
+                            Sign Up
                         </Text>
-                    </Popover> */}
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                }
+                </View>
+                
+                
 
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{color: 'white', fontFamily: 'Carme'}}>

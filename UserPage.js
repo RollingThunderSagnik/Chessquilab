@@ -255,9 +255,9 @@ class ActivePlayersTab extends Component {
                 return <Player key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
-            <View style={{backgroundColor: '#181818', flex: 1}}>
+            <ScrollView style={{backgroundColor: '#181818', flex: 1}} contentContainerStyle={{paddingBottom: 12}}>
                 {ussrs}
-            </View>
+            </ScrollView>
         )
 
     }
