@@ -1,7 +1,7 @@
 //add prole players
 var prolesPos = [];
 var c=0;
-for(let i=4;i<8;i++)
+for(let i=5;i<8;i++)
   for(let j=0;j<8;j++)
     prolesPos.push(
       {

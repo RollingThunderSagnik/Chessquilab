@@ -2,11 +2,9 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Doorway from './Doorway';
-import Menu from './Menu';
 import ChessScreen from './Chessboard';
 import Login from './Login';
 import SignUp from './SignUp';
-import Lorem from './Temporary';
 import UserPage from './UserPage';
 import MenuModal from './MenuModal';
 
@@ -17,7 +15,6 @@ const RootStackScreen = () => (
         <Stack.Screen name="Doorway" component={Doorway}/>
         <Stack.Screen name="Login" component={Login}/>
         <Stack.Screen name="SignUp" component={SignUp}/>
-        <Stack.Screen name="Menu" component={Menu}/>
         <Stack.Screen name="MenuModal" component={MenuModal}/>
         <Stack.Screen name="Userpage" component={UserPage}/>
         <Stack.Screen name="Chessboard" component={ChessScreen}/>

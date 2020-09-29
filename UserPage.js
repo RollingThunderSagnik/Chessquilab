@@ -53,20 +53,23 @@ class SentReqsTab extends Component {
     componentDidMount()
     {
         dbGameRequests.on('value', (snapshot) => {
-            let onliners = [];
-            var reqs = snapshot.val();
-            for(var req in reqs)
+            if(snapshot.val())
             {
-                let game = {...reqs[req],id:req};
-                // console.log(game);
-                if(auth.currentUser){
-                    if(game.from == userID)
-                        onliners.push(game);
+                let onliners = [];
+                var reqs = snapshot.val();
+                for(var req in reqs)
+                {
+                    let game = {...reqs[req],id:req};
+                    if(auth.currentUser){
+                        if(game.from == userID)
+                            onliners.push(game);
+                    }
                 }
+                this.setState({
+                    data : onliners
+                });
             }
-            this.setState({
-                data : onliners
-            });
+            
         });
     }
 
@@ -100,20 +103,22 @@ class RecReqsTab extends Component {
     componentDidMount()
     {
         dbGameRequests.on('value', (snapshot) => {
-            let onliners = [];
-            var reqs = snapshot.val();
-            for(var req in reqs)
+            if(snapshot.val())
             {
-                let game = {...reqs[req],id:req};
-                console.log(game);
-                if(auth.currentUser){
-                    if(game.to == userID)
-                        onliners.push(game);
+                let onliners = [];
+                var reqs = snapshot.val();
+                for(var req in reqs)
+                {
+                    let game = {...reqs[req],id:req};
+                    if(auth.currentUser){
+                        if(game.to == userID)
+                            onliners.push(game);
+                    }
                 }
+                this.setState({
+                    data : onliners
+                });
             }
-            this.setState({
-                data : onliners
-            });
         });
     }
 
@@ -191,7 +196,10 @@ class ShowModal extends Component {
         let oppName;
         //database
         dbAllUsers.child(data).once('value').then( (snapshot) => {
-            oppName = (snapshot.val().name) || 'Anonymous';
+            if(snapshot.val())
+            {
+                oppName = (snapshot.val().name);
+            }
         }).then(()=>{
             // alert(oppName);
         this.setState({
@@ -255,19 +263,22 @@ class ActivePlayersTab extends Component {
     {
         //database
         dbAllUsers.on('value', (snapshot) => {
-        //  alert("haha");
-            let onliners = [];
-            var users = snapshot.val();
-            for( var user in users)
+            if(snapshot.val())
             {
-                if(auth.currentUser){
-                    if(user != userID)
-                        onliners.push({id: user, ...users[user]});
+            //  alert("haha");
+                let onliners = [];
+                var users = snapshot.val();
+                for( var user in users)
+                {
+                    if(auth.currentUser){
+                        if(user != userID)
+                            onliners.push({id: user, ...users[user]});
+                    }
                 }
-            }
-            this.setState({
-                activeUsers : onliners
-            });
+                this.setState({
+                    activeUsers : onliners
+                });
+            }   
         });
     }
 
