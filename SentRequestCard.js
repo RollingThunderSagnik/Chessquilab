@@ -11,9 +11,9 @@ const enemyPos = prolePos;
 const { width, height } = Dimensions.get('screen');
 
 
-
-
-
+let dbGameRequests = database.ref('gameRequests');
+let userID;
+let dbUserFrom, dbUserTo;
 
 class ReceivedGameCard extends Component {
     
@@ -28,41 +28,83 @@ class ReceivedGameCard extends Component {
             id: this.props.id
         };
         this._accept = this._accept.bind(this);
+
+        let dbGameRequests = database.ref('gameRequests');
+        let dbAllUsers = database.ref('users');
+        dbUserFrom = dbAllUsers.child(this.props.from);
+        dbUserTo = dbAllUsers.child(this.props.to);
+
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                userID = user.uid;
+            } 
+        });
+        // this.state.navigation = this.props.navigation;
     }
     
     componentDidMount()
     {
-        database.ref('users/' + this.props.from).once('value').then( (snapshot) => {
-            var name = snapshot.val().name;
-            this.setState({
-                from: name
-            });
-        })
+        //database
+        if(dbUserFrom)
+            dbUserFrom.once('value').then( (snapshot) => {
+                var name = snapshot.val().name;
+                this.setState({
+                    from: name
+                });
+             })
         this._getContext();
     }
 
     _accept()
     {
-        // alert(this.state.id);
-        // database.ref('gameRequests/'+this.state.id).remove()
-        // .then(() => {
-        //     console.log(this.state.id);
-        // });
-        database.ref('users/' + this.props.prole).update({
+
+        alert(this.state.id);
+        //database
+        dbGameRequests.child(this.state.id).remove()
+        .then(() => {
+            // console.log(this.state.id);
+        });
+        let dbProle = (this.props.prole == this.props.to)?dbUserTo:dbUserFrom;
+        if(dbProle)
+        dbProle.update({
             position : prolePos,
             playing : true,
+            turn: false
         });
-        var bouj = (this.props.prole == this.props.to)?this.props.from:this.props.to;
-        database.ref('users/' + bouj).update({
-            position : boujPos,
-            playing : true,
-        });
-        database.ref('users/' + this.props.from).update({
-            opponent : this.props.to
-        });
-        database.ref('users/' + this.props.to).update({
-            opponent : this.props.from
-        });
+        
+        let dbBouj = (this.props.prole == this.props.to)?dbUserFrom:dbUserTo;
+        if(dbBouj)
+            dbBouj.update({
+                position : boujPos,
+                playing : true,
+                turn: true
+            });
+        
+        if(dbUserTo)
+        {
+            dbUserTo.update({
+                opponent : this.props.from
+            });
+            dbUserTo.child('/matches').once('value')
+            .then((snapshot)=> {
+                if(snapshot)
+                    dbUserTo.child('/matches').set((snapshot.val() + 1));
+            });
+        }
+
+        if(dbUserFrom)
+        {
+            dbUserFrom.update({
+                opponent : this.props.to
+            });
+            dbUserFrom.child('/matches').once('value')
+            .then((snapshot)=> {
+                if(snapshot.val())
+                    dbUserFrom.child('/matches').set((snapshot.val() + 1));
+            });
+        }
+        
+        // this.props.navigation.navigate('Chessboard');
     }
 
     _getContext()
@@ -71,7 +113,7 @@ class ReceivedGameCard extends Component {
             {
                 case 0: 
                 this.setState({ context: 'Black Lives Matter'});
-                if(this.props.prole == auth.currentUser.uid)
+                if(this.props.prole == userID)
                 {   
                     this.setState({
                         role: 'ANTIFA'
@@ -87,7 +129,7 @@ class ReceivedGameCard extends Component {
 
                 case 1: 
                 this.setState({ context: 'Nandigram'});
-                if(this.props.prole == auth.currentUser.uid)
+                if(this.props.prole == userID)
                 {   
                     this.setState({
                         role: 'Revolutionaries'
@@ -103,7 +145,7 @@ class ReceivedGameCard extends Component {
 
                 case 2: 
                 this.setState({ context: 'Naxalbari'});
-                if(this.props.prole == auth.currentUser.uid)
+                if(this.props.prole == userID)
                 {   
                     this.setState({
                         role: 'Naxals'
@@ -150,12 +192,13 @@ class SentGameCard extends ReceivedGameCard {
 
     componentDidMount()
     {
-        database.ref('users/' + this.props.to).once('value').then( (snapshot) => {
-            var name = snapshot.val().name;
-            this.setState({
-                to: name
-            });
-        })
+        if(dbUserTo)
+            dbUserTo.once('value').then( (snapshot) => {
+                var name = snapshot.val().name;
+                this.setState({
+                    to: name
+                });
+             })
         this._getContext();
     }
 

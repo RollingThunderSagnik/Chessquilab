@@ -7,6 +7,15 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 
 const { width, height } = Dimensions.get('screen');
 
+let dbAllUsers = database.ref('users');
+let dbcurrentUser;
+if(auth.currentUser) 
+    dbcurrentUser = dbAllUsers.child(auth.currentUser.uid);
+
+let userID;
+
+  
+
 class UserHeader extends Component {
     state = {
         uid: 0,
@@ -16,8 +25,6 @@ class UserHeader extends Component {
     constructor(props)
     {
         super(props);
-        this.state.uid = auth.currentUser?auth.currentUser.uid:"ja";
-        this.state.name = auth.currentUser?auth.currentUser.displayName:"ja";
         this.state.styles = {
             text : {
                 color: 'white', 
@@ -40,28 +47,10 @@ class UserHeader extends Component {
                 // marginHorizontal: 12
             },
         }
-        this.state.matches = 0;
-        this.state.wins = 0;
-        this.state.losses = 0;
-        this.state.witch = true;
 
-        database.ref('users/' + this.state.uid).on('value',(snapshot)=> {
-            if(snapshot){
-                this.setState({
-                    matches : snapshot.val().matches || 0,
-                    wins : snapshot.val().won || 0,
-                });
-            }
-        });
-    }
-
-    _signOutUser = () => {
-        this.props.logout();
-    }
-
-    componentDidMount(){
-
-
+        this.state.uid = userID
+        this.state.name = auth.currentUser?auth.currentUser.displayName:"ja";
+        
 
         f.auth().onAuthStateChanged( (user)=> {
             if (user) {
@@ -69,14 +58,30 @@ class UserHeader extends Component {
                     uid : auth.currentUser.uid,
                     name : auth.currentUser.displayName,        
                 });
+                dbcurrentUser = dbAllUsers.child(user.uid);
             }
-        });
-        database.ref('users/' + this.state.uid +'/name').on('value', (snapshot) => {
-            this.setState({
-                name: snapshot.val()
+
+            dbcurrentUser.on('value',(snapshot)=> {
+                if(snapshot.val()){
+                    this.setState({
+                        matches : snapshot.val().matches || 0,
+                        wins : snapshot.val().won || 0,
+                        name: snapshot.val().name,
+                    });
+                }
             });
-            console.log(snapshot.val());
         });
+
+        // this.state.matches = 0;
+        // this.state.wins = 0;
+        // this.state.losses = 0;
+        this.state.witch = true;
+
+        
+    }
+
+    _signOutUser = () => {
+        this.props.logout();
     }
 
     render()

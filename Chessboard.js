@@ -969,7 +969,7 @@ export default function ChessScreen(props) {
         //         cancelable: false
         //     }
         // );
-        // props.navigation.goBack()
+        props.navigation.goBack()
         return true;
     }
 
