@@ -41,18 +41,35 @@ class ReceivedGameCard extends Component {
             } 
         });
         // this.state.navigation = this.props.navigation;
+        //database
+        if(dbUserFrom)
+            dbUserFrom.once('value').then( (snapshot) => {
+                if(snapshot.val())
+                {
+                    var name = snapshot.val().name;
+                    this.setState({
+                        from: name
+                    });
+                }
+                
+        })
+
+        if(dbUserTo)
+        {   dbUserTo.once('value').then( (snapshot) => {
+                if(snapshot.val())
+                {
+                    var name = snapshot.val().name;
+                    this.setState({
+                        to: name
+                    });
+                }
+            })
+        }
     }
     
     componentDidMount()
     {
-        //database
-        if(dbUserFrom)
-            dbUserFrom.once('value').then( (snapshot) => {
-                var name = snapshot.val().name;
-                this.setState({
-                    from: name
-                });
-             })
+        
         this._getContext();
     }
 
@@ -87,7 +104,7 @@ class ReceivedGameCard extends Component {
             });
             dbUserTo.child('/matches').once('value')
             .then((snapshot)=> {
-                if(snapshot)
+                if(snapshot.val())
                     dbUserTo.child('/matches').set((snapshot.val() + 1));
             });
         }

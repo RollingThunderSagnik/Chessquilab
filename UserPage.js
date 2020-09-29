@@ -105,7 +105,7 @@ class RecReqsTab extends Component {
             for(var req in reqs)
             {
                 let game = {...reqs[req],id:req};
-                // console.log(game);
+                console.log(game);
                 if(auth.currentUser){
                     if(game.to == userID)
                         onliners.push(game);

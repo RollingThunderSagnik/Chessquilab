@@ -28,6 +28,7 @@ class ReceivedGameCard extends Component {
             id: this.props.id
         };
         this._accept = this._accept.bind(this);
+        this._reject = this._reject.bind(this);
 
         let dbGameRequests = database.ref('gameRequests');
         let dbAllUsers = database.ref('users');
@@ -40,25 +41,41 @@ class ReceivedGameCard extends Component {
             } 
         });
         // this.state.navigation = this.props.navigation;
+        //database
+        if(dbUserFrom)
+            dbUserFrom.once('value').then( (snapshot) => {
+                if(snapshot.val())
+                {
+                    var name = snapshot.val().name;
+                    this.setState({
+                        from: name
+                    });
+                }
+                
+        })
+
+        if(dbUserTo)
+        {   dbUserTo.once('value').then( (snapshot) => {
+                if(snapshot.val())
+                {
+                    var name = snapshot.val().name;
+                    this.setState({
+                        to: name
+                    });
+                }
+            })
+        }
     }
     
     componentDidMount()
     {
-        //database
-        if(dbUserFrom)
-            dbUserFrom.once('value').then( (snapshot) => {
-                var name = snapshot.val().name;
-                this.setState({
-                    from: name
-                });
-             })
+        
         this._getContext();
     }
 
     _accept()
     {
 
-        alert(this.state.id);
         //database
         dbGameRequests.child(this.state.id).remove()
         .then(() => {
@@ -87,7 +104,7 @@ class ReceivedGameCard extends Component {
             });
             dbUserTo.child('/matches').once('value')
             .then((snapshot)=> {
-                if(snapshot)
+                if(snapshot.val())
                     dbUserTo.child('/matches').set((snapshot.val() + 1));
             });
         }
@@ -105,6 +122,11 @@ class ReceivedGameCard extends Component {
         }
         
         // this.props.navigation.navigate('Chessboard');
+    }
+
+    _reject()
+    {
+        dbGameRequests.child(this.state.id).remove()
     }
 
     _getContext()
@@ -180,7 +202,7 @@ class ReceivedGameCard extends Component {
                 <TouchableOpacity onPress={this._accept} style={styles.buttons}>
                     <Feather name="check" stroke-width={3} size={20} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttons}>
+                <TouchableOpacity onPress={this._reject} style={styles.buttons}>
                     <Feather name="x" stroke-width={3} size={20} color="white" />
                 </TouchableOpacity>
             </View>
@@ -190,16 +212,9 @@ class ReceivedGameCard extends Component {
 
 class SentGameCard extends ReceivedGameCard {
 
-    componentDidMount()
+    constructor(props)
     {
-        if(dbUserTo)
-            dbUserTo.once('value').then( (snapshot) => {
-                var name = snapshot.val().name;
-                this.setState({
-                    to: name
-                });
-             })
-        this._getContext();
+        super(props);
     }
 
     render()
@@ -215,6 +230,11 @@ class SentGameCard extends ReceivedGameCard {
                 <View style={styles.time}>
                      <Text style={styles.timetext}>16:00, 9/11/1969</Text>
                 </View>
+            </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={this._reject} style={styles.buttons}>
+                    <Feather name="x" stroke-width={3} size={20} color="white" />
+                </TouchableOpacity>
             </View>
             
         </View>);
