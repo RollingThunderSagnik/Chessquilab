@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { StatusBar, Text, View, Dimensions,  TouchableOpacity} from 'react-native';
 import {f, auth, database} from './config/config';
 import RadioButtonRN from 'radio-buttons-react-native';
-import {Picker} from '@react-native-community/picker';
 import SmoothPicker from "react-native-smooth-picker";
 
 

@@ -16,6 +16,26 @@ import { EventRegister} from 'react-native-event-listeners';
 import Popover from 'react-native-popover-view';
 import Feather from 'react-native-vector-icons/Feather';
 
+
+let dbGameRequests = database.ref('gameRequests');
+let dbAllUsers = database.ref('users');
+let dbcurrentUser;
+if(auth.currentUser) 
+    dbcurrentUser = dbAllUsers.child(auth.currentUser.uid);
+
+let userID;
+
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        dbcurrentUser = dbAllUsers.child(user.uid);;
+        userID = user.uid;
+    } else {
+    }
+});
+  
+
+
+
 class SentReqsTab extends Component {
     state = {
         data : [{
@@ -32,7 +52,7 @@ class SentReqsTab extends Component {
 
     componentDidMount()
     {
-        database.ref('gameRequests/').on('value', (snapshot) => {
+        dbGameRequests.on('value', (snapshot) => {
             let onliners = [];
             var reqs = snapshot.val();
             for(var req in reqs)
@@ -40,7 +60,7 @@ class SentReqsTab extends Component {
                 let game = {...reqs[req],id:req};
                 // console.log(game);
                 if(auth.currentUser){
-                    if(game.from == auth.currentUser.uid)
+                    if(game.from == userID)
                         onliners.push(game);
                 }
             }
@@ -79,7 +99,7 @@ class RecReqsTab extends Component {
 
     componentDidMount()
     {
-        database.ref('gameRequests/').on('value', (snapshot) => {
+        dbGameRequests.on('value', (snapshot) => {
             let onliners = [];
             var reqs = snapshot.val();
             for(var req in reqs)
@@ -87,7 +107,7 @@ class RecReqsTab extends Component {
                 let game = {...reqs[req],id:req};
                 // console.log(game);
                 if(auth.currentUser){
-                    if(game.to == auth.currentUser.uid)
+                    if(game.to == userID)
                         onliners.push(game);
                 }
             }
@@ -169,7 +189,8 @@ class ShowModal extends Component {
     componentDidMount() {
     this.listener = EventRegister.addEventListener('modDe', (data) => {
         let oppName;
-        database.ref('users/' + data).once('value').then( (snapshot) => {
+        //database
+        dbAllUsers.child(data).once('value').then( (snapshot) => {
             oppName = (snapshot.val().name) || 'Anonymous';
         }).then(()=>{
             // alert(oppName);
@@ -232,14 +253,15 @@ class ActivePlayersTab extends Component {
 
     componentDidMount()
     {
-        database.ref('users').on('value', (snapshot) => {
+        //database
+        dbAllUsers.on('value', (snapshot) => {
         //  alert("haha");
             let onliners = [];
             var users = snapshot.val();
             for( var user in users)
             {
                 if(auth.currentUser){
-                    if(user != auth.currentUser.uid)
+                    if(user != userID)
                         onliners.push({id: user, ...users[user]});
                 }
             }
@@ -303,15 +325,20 @@ export default function UserPage(props) {
         'TTNorms-Regular': require('./assets/fonts/TTNorms-Regular.otf'),
         'Gilroy-ExtraBold': require('./assets/fonts/Gilroy-ExtraBold.otf')
     });
+
     //start game
-    database.ref('users/' + auth.currentUser.uid + '/playing').on('value', (snapshot) => {
-        let val = snapshot.val();
-        if(val)
-            props.navigation.navigate('Chessboard');
+    //database
+    if(dbcurrentUser)
+        dbcurrentUser.child('playing').on('value', (snapshot) => {
+            let val = snapshot.val();
+            if(val)
+                props.navigation.navigate('Chessboard');
     });
 
     const signOutUser = () => {
-        database.ref('users/' + auth.currentUser.uid + '/').update({'online': false})
+        //database
+        if(dbcurrentUser)
+            dbcurrentUser.update({'online': false})
         auth.signOut()
             .then(() => {console.log('Logged Out...')})
             .catch((error) => {
