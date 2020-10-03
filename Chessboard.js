@@ -10,8 +10,11 @@ import Popover from 'react-native-popover-view';
 import Result from './resultMessage';
 
 
+// const { sWidth, sHeight } = Dimensions.get('screen');
+const sWidth = Dimensions.get('window').width;
+const sHeight = Dimensions.get('window').height;
 const chsize = Math.floor(Math.min(Math.round(Dimensions.get('window').width), Math.round(Dimensions.get('window').width))/100)*100
-const image = require('./assets/chess.png');//{ uri: "https://reactjs.org/logo-og.png" };
+const image = require('./assets/chess.png');
 const imgpawn = require('./assets/pawn.png');
 const imgpawndark = require('./assets/pawn_dark.png');
 const imgrook = require('./assets/rook.png');
@@ -49,261 +52,6 @@ var userPos = [];
 var enemyPos = [];
 
 
-class Chessboard extends Component {
-  
-  state = {
-    piecedeets : userPos,
-    enemydeets : rotateBoard(enemyPos),
-    turn: false,
-    winner: false,
-  }
-
-  constructor(props)
-  {
-
-    super(props);
-    let user = auth.currentUser;
-    f.auth().onAuthStateChanged(function(ussr) {
-      if (ussr) {
-        user = ussr;
-        // userID = user.uid;
-        dbcurrentUser = dbAllUsers.child(user.uid);
-      } 
-      else {
-      }
-    });
-
-    this._gameLost = this._gameLost.bind(this);      
-  }
-
-  componentDidMount()
-  {
-    let user = auth.currentUser;
-    dbcurrentUser = dbAllUsers.child(user.uid);
-    if(dbcurrentUser)
-    {
-    dbcurrentUser.once('value')
-    .then((snapshot)=> {
-      if(snapshot.val())
-      {
-        let oppID = snapshot.val().opponent;
-        dbOppUser = dbAllUsers.child(oppID);
-      }
-    }).then( 
-      () => {
-        if(dbOppUser)
-        {
-          dbOppUser.on('value', (snapshot)=> {
-            if(snapshot.val())
-            {
-              enemyPos = snapshot.val().position;
-              this.setState({
-                enemydeets : rotateBoard(enemyPos)
-              });
-            }
-          });
-        }
-        dbcurrentUser.child('position').on('value', (snapshot)=> {
-          if(snapshot.val())
-          {
-            userPos = snapshot.val();
-            this.setState({
-              piecedeets : userPos
-            });
-          }
-        });
-
-        dbcurrentUser.child('winner').on('value', (snapshot)=> {
-          if(snapshot.val())
-          {
-            this.setState({
-              matchEnd: true,
-              winner: true
-            });
-          }
-        });
-
-        boolKing = hasKing();
-        
-        dbcurrentUser.child('turn').on('value', (snapshot)=> {
-          let turnornot = snapshot.val();
-          if(turnornot)
-            this._checkLost();
-          this.setState({
-            turn : turnornot
-          });
-        });
-      
-      });  
-      
-    }
-  }
-
-  _checkPawn()
-  {
-  let haha = myout.length;
-  let hahu = userPos.length;  
-  if(haha==hahu)
-    return true;
-  return false;
-  }
-
-  _checkLost()
-  {
-    let hahu = userPos.length;
-    if(hahu==0)
-      return;
-
-    let lost;
-
-    if(boolKing)
-    {
-      checkList = [];
-      checkRescue = [];
-      EventRegister.emit('checkChe');
-      lost = (checkRescue.length==0);
-    }
-    else
-    {
-      lost = this._checkPawn();
-    }
-
-    if(lost)
-    {
-      this.setState({
-        matchEnd: true
-      });
-      if(dbOppUser)
-      {
-        dbOppUser.child('won').once('value')
-        .then((snapshot)=> {
-            if(snapshot.val())
-              dbOppUser.child('won').set((snapshot.val() + 1));
-      });
-      dbOppUser.child('winner').set(true);
-      }
-    }
-
-  }
-
-  _gameLost()
-  {
-    if(dbcurrentUser)
-    {
-      dbcurrentUser.update({
-        playing: false,
-        winner : false
-      });
-      this.setState({
-        matchEnd: false
-      });
-      this.props.exitapp();
-    }
-    
-  }
-
-  _getPawns (item,disabld)
-  {
-    switch (item.type) {
-      case 0:
-        return <Pawn disabled={disabld} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
-      case 1:
-        return <Rook disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
-      case 2:
-        return <Knight disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
-      case 3:
-        return <Bishop disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
-      case 4:
-        return <Queen disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
-      case 5:
-        return <King disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
-    }
-  }
-
-  render()
-  {
-    var veil =<View style={{
-        position: 'absolute',
-        width: chsize,
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        height: chsize,
-        alignItems: 'center',
-        justifyContent: 'center'
-        }}>
-          <Icon name='hourglass-half' size={60} color='white' ></Icon>
-      </View>
-    
-
-    if(this.state.piecedeets == null || this.state.enemydeets == null)
-      return <View></View>
-
-    var pisces = this.state.piecedeets.map( (item) => {
-      if (item.y ==-1)
-        return;
-        return this._getPawns(item,false);
-    });
-
-    var enemypisces = this.state.enemydeets.map( (item) => {
-      if (item.y ==-1)
-        return;
-      return this._getPawns(item,true);
-    });
-
-    enemyout = [];
-    for(let i in this.state.enemydeets)
-    {
-      let item = this.state.enemydeets[i];
-      if(item.y==-1)
-      enemyout.push(this._getPawns(item,true));
-    };
-
-    myout = [];
-    for(let i in this.state.piecedeets)
-    {
-      let item = this.state.piecedeets[i];
-      if(item.y==-1)
-      myout.push(this._getPawns(item,true));
-    };
-
-    return (
-    <>
-    <Popover 
-        placement={"center"}
-        isVisible={this.state.matchEnd} 
-        popoverStyle={{
-            padding: 20,
-            borderRadius: 22,
-            backgroundColor: 'white',
-        }}
-        backgroundStyle={{
-            backgroundColor: 'rgba(0,0,0,0.5)'
-        }}
-        onRequestClose={this._gameLost}
-    >
-        <Result result={this.state.winner}></Result>
-             
-    </Popover>
-    {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
-    {myout.length==0?<></>:<View style={styles.myout}>{myout}</View>}
-    <View style={{
-      width: chsize,
-      backgroundColor: '#09f',
-      height: chsize,
-      }}>
-      
-      <ImageBackground source={image} style={styles.image}>
-      {enemypisces}
-      {pisces}
-      </ImageBackground>
-    </View>
-
-    {this.state.turn?<></>:veil}
-
-    {/* {veil} */}
-    </>
-    );
-  }
-}
 
 class Pospos extends Component {
   state = {
@@ -466,11 +214,11 @@ class Piece extends Component {
     );
 
     return(
-      <View>
+      <View style={{width: tsize*0.35, justifyContent: 'center',alignItems:'center'}}>
       <TouchableWithoutFeedback onPress={this._onShowMoves}>
       <ImageBackground source={this.state.img} style={{
         margin: 0,
-        padding: 0,
+        paddingHorizontal: 0,
         width: tsize*0.7,
         height: tsize*0.7,
       }}>
@@ -479,7 +227,6 @@ class Piece extends Component {
         </Text>
       </ImageBackground>
       </TouchableWithoutFeedback>
-      {this.state.nextmove}
       </View>
     );
 
@@ -981,6 +728,265 @@ class King extends Piece {
 
 
 
+class Chessboard extends Component {
+  
+  state = {
+    piecedeets : userPos,
+    enemydeets : rotateBoard(enemyPos),
+    turn: false,
+    winner: false,
+  }
+
+  constructor(props)
+  {
+
+    super(props);
+    let user = auth.currentUser;
+    f.auth().onAuthStateChanged(function(ussr) {
+      if (ussr) {
+        user = ussr;
+        // userID = user.uid;
+        dbcurrentUser = dbAllUsers.child(user.uid);
+      } 
+      else {
+      }
+    });
+
+    this._gameLost = this._gameLost.bind(this);      
+  }
+
+  componentDidMount()
+  {
+    let user = auth.currentUser;
+    dbcurrentUser = dbAllUsers.child(user.uid);
+    if(dbcurrentUser)
+    {
+    dbcurrentUser.once('value')
+    .then((snapshot)=> {
+      if(snapshot.val())
+      {
+        let oppID = snapshot.val().opponent;
+        dbOppUser = dbAllUsers.child(oppID);
+      }
+    }).then( 
+      () => {
+        if(dbOppUser)
+        {
+          dbOppUser.on('value', (snapshot)=> {
+            if(snapshot.val())
+            {
+              enemyPos = snapshot.val().position;
+              this.setState({
+                enemydeets : rotateBoard(enemyPos)
+              });
+            }
+          });
+        }
+        dbcurrentUser.child('position').on('value', (snapshot)=> {
+          if(snapshot.val())
+          {
+            userPos = snapshot.val();
+            this.setState({
+              piecedeets : userPos
+            });
+          }
+        });
+
+        dbcurrentUser.child('winner').on('value', (snapshot)=> {
+          if(snapshot.val())
+          {
+            this.setState({
+              matchEnd: true,
+              winner: true
+            });
+          }
+        });
+
+        boolKing = hasKing();
+        
+        dbcurrentUser.child('turn').on('value', (snapshot)=> {
+          let turnornot = snapshot.val();
+          if(turnornot)
+            this._checkLost();
+          this.setState({
+            turn : turnornot
+          });
+        });
+      
+      });  
+      
+    }
+  }
+
+  _checkPawn()
+  {
+  let haha = myout.length;
+  let hahu = userPos.length;  
+  if(haha==hahu)
+    return true;
+  return false;
+  }
+
+  _checkLost()
+  {
+    let hahu = userPos.length;
+    if(hahu==0)
+      return;
+
+    let lost;
+
+    if(boolKing)
+    {
+      checkList = [];
+      checkRescue = [];
+      EventRegister.emit('checkChe');
+      lost = (checkRescue.length==0);
+    }
+    else
+    {
+      lost = this._checkPawn();
+    }
+
+    if(lost)
+    {
+      this.setState({
+        matchEnd: true
+      });
+      if(dbOppUser)
+      {
+        dbOppUser.child('won').once('value')
+        .then((snapshot)=> {
+            if(snapshot.val())
+              dbOppUser.child('won').set((snapshot.val() + 1));
+      });
+      dbOppUser.child('winner').set(true);
+      }
+    }
+
+  }
+
+  _gameLost()
+  {
+    if(dbcurrentUser)
+    {
+      dbcurrentUser.update({
+        playing: false,
+        winner : false
+      });
+      this.setState({
+        matchEnd: false
+      });
+      this.props.exitapp();
+    }
+    
+  }
+
+  _getPawns (item,disabld)
+  {
+    switch (item.type) {
+      case 0:
+        return <Pawn disabled={disabld} key={item.id} color={item.color} id={item.id} left={item.x} top={item.y}></Pawn>
+      case 1:
+        return <Rook disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Rook>
+      case 2:
+        return <Knight disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Knight>
+      case 3:
+        return <Bishop disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Bishop>
+      case 4:
+        return <Queen disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></Queen>
+      case 5:
+        return <King disabled={disabld} key={item.id} color={item.color}  id={item.id} left={item.x} top={item.y}></King>
+    }
+  }
+
+  render()
+  {
+    var veil =<View style={{
+        position: 'absolute',
+        width: chsize,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        height: chsize,
+        alignItems: 'center',
+        justifyContent: 'center'
+        }}>
+          <Icon name='hourglass-half' size={60} color='white' ></Icon>
+      </View>
+    
+
+    if(this.state.piecedeets == null || this.state.enemydeets == null)
+      return <View></View>
+
+    var pisces = this.state.piecedeets.map( (item) => {
+      if (item.y ==-1)
+        return;
+        return this._getPawns(item,false);
+    });
+
+    var enemypisces = this.state.enemydeets.map( (item) => {
+      if (item.y ==-1)
+        return;
+      return this._getPawns(item,true);
+    });
+
+    enemyout = [];
+    for(let i in this.state.enemydeets)
+    {
+      let item = this.state.enemydeets[i];
+      if(item.y==-1)
+      enemyout.push(this._getPawns(item,true));
+    };
+
+    myout = [];
+    for(let i in this.state.piecedeets)
+    {
+      let item = this.state.piecedeets[i];
+      if(item.y==-1)
+      myout.push(this._getPawns(item,true));
+    };
+
+    return (
+    <>
+    <Popover 
+        placement={"center"}
+        isVisible={this.state.matchEnd} 
+        popoverStyle={{
+            padding: 20,
+            borderRadius: 22,
+            backgroundColor: 'white',
+        }}
+        backgroundStyle={{
+            backgroundColor: 'rgba(0,0,0,0.5)'
+        }}
+        onRequestClose={this._gameLost}
+    >
+        <Result result={this.state.winner}></Result>
+             
+    </Popover>
+    <View style={styles.encon}>
+      {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
+    </View>
+    <View style={styles.mycon}>
+      {myout.length==0?<></>:<View style={styles.gutiout}>{myout}</View>}
+    </View>
+    <View style={{
+      width: chsize,
+      backgroundColor: '#09f',
+      height: chsize,
+      }}>
+      
+      <ImageBackground source={image} style={styles.image}>
+      {enemypisces}
+      {pisces}
+      </ImageBackground>
+    </View>
+
+    {this.state.turn?<></>:veil}
+
+    {/* {veil} */}
+    </>
+    );
+  }
+}
 
 
 export default function ChessScreen(props) {
@@ -1020,16 +1026,30 @@ export default function ChessScreen(props) {
 // export default ChessScreen;
 
 const styles = StyleSheet.create({
+  mycon : {
+    position: "absolute",
+    bottom: (sHeight-chsize)/6,
+    width: sWidth,
+    // backgroundColor: '#09f',
+    // flex: 1,
+    // paddingHorizontal: 20,
+  },
+  encon : {
+    position: "absolute",
+    top: (sHeight-chsize)/6,
+    width: sWidth,
+    // backgroundColor: '#09f',
+    // flex: 1,
+    // paddingHorizontal: 20,
+  },
   gutiout : {
-    position : 'absolute',
-    top: 50,
-    // width:100,
-    // height:100,
     flexDirection:'row',
-    backgroundColor: '#fff',
+    flexWrap: 'wrap',
+    backgroundColor: '#333',
     padding: 10,
-    borderRadius: 50,
-    paddingHorizontal: 20
+    // borderRadius: 50,
+    paddingHorizontal: 20,
+    justifyContent: 'center'
   },
   myout : {
     position : 'absolute',
