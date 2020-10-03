@@ -123,7 +123,7 @@ class UserHeader extends Component {
             position:'absolute',
             bottom: -50,
             // top: Platform.OS === 'ios' ? Constants.statusBarHeight+80:80,
-            paddingHorizontal: 20,
+            paddingLeft: 20,
             width: width,
             height: height,
             flexDirection:'column',

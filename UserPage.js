@@ -33,9 +33,6 @@ auth.onAuthStateChanged(function(user) {
     }
 });
   
-
-
-
 class SentReqsTab extends Component {
     state = {
         data : [{
@@ -79,7 +76,7 @@ class SentReqsTab extends Component {
             return <SentGameCard key={req.id} id={req.id} context={req.context} from={req.from} to={req.to} prole={req.prole}/>
         });
         return (
-            <ScrollView style={{backgroundColor: '#181818', flex: 1}}>
+            <ScrollView style={{flex: 1}}>
                 {receivedReqs}
             </ScrollView>
         )
@@ -128,7 +125,7 @@ class RecReqsTab extends Component {
             return <ReceivedGameCard key={req.id} id={req.id} context={req.context} from={req.from} to={req.to} prole={req.prole}/>
         });
         return (
-            <ScrollView style={{backgroundColor: '#181818', flex: 1}}>
+            <ScrollView style={{flex: 1}}>
                 {receivedReqs}
             </ScrollView>
         )
@@ -165,10 +162,10 @@ class Player extends Component {
     render()
     {
         return(
-        <View style={{backgroundColor: '#181818', padding: 20, paddingBottom: 0}}>
+        <View style={{padding: 20, paddingBottom: 0}}>
             {/* <ion-icon name="ellipse-outline"></ion-icon> */}
 
-            <View style={{height: 50, backgroundColor: '#181818', flexDirection:"row", alignItems: 'center'}}>
+            <View style={{height: 50, flexDirection:"row", alignItems: 'center'}}>
                 <Icon name="circle" stroke-width={3} size={15} color={this.state.online?"green":"grey"} />
                 <Text style={{ marginHorizontal: 10, color: 'white', fontFamily: 'Carme', fontSize: 18}}>{this.state.name}</Text>
                 <TouchableOpacity onPress={this._modal} style={{position: 'absolute', right: 0}} >
@@ -288,12 +285,78 @@ class ActivePlayersTab extends Component {
                 return <Player key={user.id} id={user.id} name={user.name} online={user.online}></Player>
             });
         return (
-            <ScrollView style={{backgroundColor: '#181818', flex: 1}} contentContainerStyle={{paddingBottom: 12}}>
+            <ScrollView style={{flex: 1}} contentContainerStyle={{paddingBottom: 12}}>
                 {ussrs}
             </ScrollView>
         )
 
     }
+}
+
+class Scroll extends Component{
+    state = {
+        recv:0
+    }
+    constructor(props)
+    {
+        super(props);
+        this.state.recv =0;
+        // this.updateRecv = this.updateRecv.bind(this);
+    }
+
+    render()
+    {
+        return(
+        <ScrollableTabView
+                    style={{
+                        height:40,
+                        // backgroundColor:'#888',
+                        // flexDirection:'row'
+                    }}
+                    // tabBarPosition='bottom'
+                    tabBarInactiveTextColor='#aaa'
+                    tabBarActiveTextColor='white'
+                    renderTabBar={() => {
+                    return (
+                    <TabBar 
+                        underlineColor='white' 
+                        tabBarTextStyle={{
+                            fontFamily: 'Carme',
+                            fontSize: 18
+                        }}
+                        tabBarStyle={{ 
+                            // flex:1,
+                            // backgroundColor: '#fff',
+                            paddingTop: 22,
+                            borderBottomWidth: 0,
+                            marginTop: 0,
+                            alignSelf: 'center',
+                        }}
+                        tabStyles={{
+                            badgeBubble: {
+                                color: 'white',
+                                paddingVertical: 8,
+                                marginTop: 4,
+                                borderRadius: 100
+                            },
+                            badgeText: {
+                                color: '#181818'
+                            }
+
+                        } }
+                    />
+                    
+                    ); 
+                }}
+                >
+                    <SentReqsTab tabLabel={{label: 'Sent Requests'}} label=''/>
+                    <RecReqsTab tabLabel={{label: 'Game Requests', badge:0}} label=''/>
+                    <ActivePlayersTab tabLabel={{label: 'Players'}} label='' />
+                    
+        </ScrollableTabView>);
+            
+    }
+
 }
 
 export default function UserPage(props) {
@@ -373,52 +436,7 @@ export default function UserPage(props) {
             paddingTop: Platform.OS === 'ios' ? Constants.statusBarHeight:0
             }}>
                 <UserHeader logout={signOutUser} />
-                <ScrollableTabView
-                    style={{
-                        height:40,
-                        // backgroundColor:'#888',
-                        // flexDirection:'row'
-                    }}
-                    // tabBarPosition='bottom'
-                    tabBarInactiveTextColor='#aaa'
-                    tabBarActiveTextColor='white'
-                    renderTabBar={() => {
-                    return (
-                    <TabBar 
-                        underlineColor='white' 
-                        tabBarTextStyle={{
-                            fontFamily: 'Carme',
-                            fontSize: 18
-                        }}
-                        tabBarStyle={{ 
-                            // flex:1,
-                            // backgroundColor: '#fff',
-                            paddingTop: 22,
-                            borderBottomWidth: 0,
-                            marginTop: 0,
-                            alignSelf: 'center',
-                        }}
-                        tabStyles={{
-                            badgeBubble: {
-                                cusolor: 'white',
-                                paddingVertical: 8,
-                                marginTop: 4,
-                                borderRadius: 100
-                            },
-                            badgeText: {
-                                color: '#181818'
-                            }
-
-                        } }
-                    />
-                    
-                    ); 
-                }}
-                >
-                    <RecReqsTab tabLabel={{label: 'Game Requests', badge: '8'}} label=''/>
-                    <SentReqsTab tabLabel={{label: 'Sent Requests'}} label=''/>
-                    <ActivePlayersTab tabLabel={{label: 'Players'}} label='' />
-                </ScrollableTabView>
+                <Scroll/>
             </View>
             </>
         )
