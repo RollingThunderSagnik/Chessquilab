@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import {f, auth, database} from './config/config';
-import { useNavigation } from '@react-navigation/native';
 
+import TextTicker from 'react-native-text-ticker'
 const { width, height } = Dimensions.get('screen');
 
 class Headline extends Component {
@@ -21,7 +19,17 @@ class Headline extends Component {
     {
         return (
         <View style={{...styles.box, width: this.state.width}}>
-            <Text style={styles.text}>{'NAXALITE TEEN APPREHENDED BY POLICE'}</Text>           
+            <TextTicker 
+                style={styles.text}
+                // duration={3000}
+                loop
+                scrollSpeed={300}
+                animationType={'scroll'}
+                repeatSpacer={10}
+                scroll
+                >
+                {'NAXALITE TEEN APPREHENDED BY POLICE, TEN CARTONS OF AMMUNITION FOUND'}
+            </TextTicker>           
         </View>);
     }
 }
