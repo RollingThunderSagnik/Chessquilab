@@ -5,11 +5,11 @@ import { EventRegister} from 'react-native-event-listeners';
 import {f, auth, database} from './config/config';
 import { AppLoading } from 'expo';    
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { LinearGradient } from 'react-native-svg';
 import Popover from 'react-native-popover-view';
 import Result from './resultMessage';
-
-
+import { useFonts } from '@use-expo/font';
+import Constants from "expo-constants";
+import Headline from './Headlines';
 // const { sWidth, sHeight } = Dimensions.get('screen');
 const sWidth = Dimensions.get('window').width;
 const sHeight = Dimensions.get('window').height;
@@ -726,6 +726,26 @@ class King extends Piece {
 
 }
 
+class Clock extends Component {
+  state = {
+    time: 130
+  }
+
+  constructor (props)
+  {
+    super(props);
+  }
+
+  render()
+  {
+    return (
+      <View>
+        <Text style={styles.text}>{Math.floor(this.state.time/60)+':'+(this.state.time%60)}</Text>
+      </View>
+    );
+  }
+}
+
 
 
 class Chessboard extends Component {
@@ -771,7 +791,8 @@ class Chessboard extends Component {
         let oppID = snapshot.val().opponent;
         dbOppUser = dbAllUsers.child(oppID);
       }
-    }).then( 
+    })
+    .then( 
       () => {
         if(dbOppUser)
         {
@@ -911,7 +932,7 @@ class Chessboard extends Component {
 
   render()
   {
-    var veil =<View style={{
+    const veil =<View style={{
         position: 'absolute',
         width: chsize,
         backgroundColor: 'rgba(0,0,0,0.3)',
@@ -926,13 +947,13 @@ class Chessboard extends Component {
     if(this.state.piecedeets == null || this.state.enemydeets == null)
       return <View></View>
 
-    var pisces = this.state.piecedeets.map( (item) => {
+    let pisces = this.state.piecedeets.map( (item) => {
       if (item.y ==-1)
         return;
         return this._getPawns(item,false);
     });
 
-    var enemypisces = this.state.enemydeets.map( (item) => {
+    let enemypisces = this.state.enemydeets.map( (item) => {
       if (item.y ==-1)
         return;
       return this._getPawns(item,true);
@@ -972,18 +993,23 @@ class Chessboard extends Component {
         <Result result={this.state.winner}></Result>
              
     </Popover>
+    
     <View style={styles.encon}>
       <View style={styles.container}>
         <Text style={styles.text}>{this.state.oppName}</Text>
         {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
       </View>
     </View>
+
+    
     <View style={styles.mycon}>
       <View style={styles.container}>
         <Text style={styles.text}>{this.state.name}</Text>
         {myout.length==0?<></>:<View style={styles.gutiout}>{myout}</View>}
       </View>
     </View>
+
+    {/* main */}
     <View style={{
       width: chsize,
       backgroundColor: '#09f',
@@ -996,9 +1022,19 @@ class Chessboard extends Component {
       </ImageBackground>
     </View>
 
-    {this.state.turn?<></>:veil}
+    
 
     {/* {veil} */}
+    {this.state.turn?<></>:veil}
+
+    {/* Headline */}
+    <View style={{
+      position:'absolute',
+      top: (sHeight-chsize)/2+chsize
+    }}>
+      <Headline width={chsize}></Headline>
+    </View>
+
     </>
     );
   }
@@ -1024,15 +1060,32 @@ export default function ChessScreen(props) {
             BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
         })
     });
-    
-    return (<>
+
+    let [fontsLoaded] = useFonts({
+      'Carme': require('./assets/fonts/Carme-Regular.ttf'),
+          'Monoton': require('./assets/fonts/Monoton-Regular.ttf'),
+          'Helvetica-Light': require('./assets/fonts/HelveticaNeue-Light.ttf'),
+          'TTNorms-Black': require('./assets/fonts/TTNorms-Black.otf'),
+          'TTNorms-Bold': require('./assets/fonts/TTNorms-Bold.otf'),
+          'TTNorms-ExtraBold': require('./assets/fonts/TTNorms-ExtraBold.otf'),
+          'TTNorms-Medium': require('./assets/fonts/TTNorms-Medium.otf'),
+          'TTNorms-Regular': require('./assets/fonts/TTNorms-Regular.otf'),
+          'Gilroy-ExtraBold': require('./assets/fonts/Gilroy-ExtraBold.otf')
+    });
+
+    if (!fontsLoaded)
+      return <AppLoading />;
+    else 
+      return (<>
       <StatusBar barStyle='light-content'/>
       <View style={{
+        paadingTop: Platform.OS === 'ios' ? Constants.statusBarHeight:0,
         flex: 1,
         backgroundColor: '#181818',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
+
         <Chessboard exitapp={chalChale}></Chessboard>
       </View>
       </>);
@@ -1055,11 +1108,15 @@ const styles = StyleSheet.create({
     height: (sHeight-chsize)/2,
     justifyContent: 'center',
   },
+  header : {
+    paddingBottom: 6,
+    flexDirection: 'row'
+  },
   text : {
     color: '#fff',
     fontFamily: 'TTNorms-Regular',
-    fontSize: 18,
-    paddingBottom: 6
+    fontSize: 18,    
+    paddingBottom: 6,
   },
   container:{
     // backgroundColor: '#fff',
@@ -1070,10 +1127,9 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     flexWrap: 'wrap',
   },
-
-    image: {
-      flex: 1,
-      width: chsize,
-      height: chsize,
-    }
+  image: {
+    flex: 1,
+    width: chsize,
+    height: chsize,
+  }
 });

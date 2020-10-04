@@ -6,49 +6,42 @@ import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('screen');
 
-class Result extends Component {
+class Headline extends Component {
 
+    state = {
+
+    }
     constructor(props)
     {
         super(props);
+        this.state.width = this.props.width;
     }
 
     render()
     {
         return (
-        <View style={styles.box}>
-            <View 
-                style={{ 
-                height: 30,
-                flexDirection:'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 20,
-                paddingHorizontal:22
-                }}>
-                    <Text style={styles.header}>MATCH OVER</Text>
-                </View>
-            <Text style={styles.text}>{this.props.result?'YOU WON :)':'YOU LOST :('}</Text>           
+        <View style={{...styles.box, width: this.state.width}}>
+            <Text style={styles.text}>{'NAXALITE TEEN APPREHENDED BY POLICE'}</Text>           
         </View>);
     }
 }
-export default Result;
+export default Headline;
 
 const styles = StyleSheet.create({
     header : {
-        color: '#000',
+        color: '#fff',
         fontFamily: 'Gilroy-ExtraBold',
         fontSize: 19,
     },
     text :{
-        color: '#000',
+        color: '#fff',
         fontFamily: 'TTNorms-Medium',
         fontSize: 17,
     },
     box: {
         alignItems:'center',
         // padding:20,
-        paddingBottom: 0,
+        paddingVertical: 5,
         // flexDirection: 'row'
     },
   });
