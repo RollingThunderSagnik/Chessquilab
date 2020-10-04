@@ -214,13 +214,13 @@ class Piece extends Component {
     );
 
     return(
-      <View style={{width: tsize*0.35, justifyContent: 'center',alignItems:'center'}}>
+      <View style={{width:17,justifyContent: 'center',alignItems:'center'}}>
       <TouchableWithoutFeedback onPress={this._onShowMoves}>
       <ImageBackground source={this.state.img} style={{
         margin: 0,
         paddingHorizontal: 0,
-        width: tsize*0.7,
-        height: tsize*0.7,
+        width: 20,
+        height: 20,
       }}>
         <Text>
           {/* {this.state.left + "," + this.state.top+"\n"+this.props.id} */}
@@ -758,6 +758,9 @@ class Chessboard extends Component {
   componentDidMount()
   {
     let user = auth.currentUser;
+    this.setState({
+      name : user.displayName.toUpperCase()
+    });
     dbcurrentUser = dbAllUsers.child(user.uid);
     if(dbcurrentUser)
     {
@@ -772,10 +775,17 @@ class Chessboard extends Component {
       () => {
         if(dbOppUser)
         {
-          dbOppUser.on('value', (snapshot)=> {
+          dbOppUser.child('name').once('value')
+          .then((snapshot)=>{
+            let oppName = snapshot.val();
+            this.setState({
+              oppName: oppName.toUpperCase() 
+            });
+          });
+          dbOppUser.child('position').on('value', (snapshot)=> {
             if(snapshot.val())
             {
-              enemyPos = snapshot.val().position;
+              enemyPos = snapshot.val();
               this.setState({
                 enemydeets : rotateBoard(enemyPos)
               });
@@ -963,10 +973,16 @@ class Chessboard extends Component {
              
     </Popover>
     <View style={styles.encon}>
-      {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
+      <View style={styles.container}>
+        <Text style={styles.text}>{this.state.oppName}</Text>
+        {enemyout.length==0?<></>:<View style={styles.gutiout}>{enemyout}</View>}
+      </View>
     </View>
     <View style={styles.mycon}>
-      {myout.length==0?<></>:<View style={styles.gutiout}>{myout}</View>}
+      <View style={styles.container}>
+        <Text style={styles.text}>{this.state.name}</Text>
+        {myout.length==0?<></>:<View style={styles.gutiout}>{myout}</View>}
+      </View>
     </View>
     <View style={{
       width: chsize,
@@ -1008,8 +1024,7 @@ export default function ChessScreen(props) {
             BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
         })
     });
-
-
+    
     return (<>
       <StatusBar barStyle='light-content'/>
       <View style={{
@@ -1028,39 +1043,32 @@ export default function ChessScreen(props) {
 const styles = StyleSheet.create({
   mycon : {
     position: "absolute",
-    bottom: (sHeight-chsize)/6,
+    bottom: 0,
     width: sWidth,
-    // backgroundColor: '#09f',
-    // flex: 1,
-    // paddingHorizontal: 20,
+    height: (sHeight-chsize)/2,
+    justifyContent: 'center',
   },
   encon : {
     position: "absolute",
-    top: (sHeight-chsize)/6,
+    top: 0,
     width: sWidth,
-    // backgroundColor: '#09f',
-    // flex: 1,
-    // paddingHorizontal: 20,
+    height: (sHeight-chsize)/2,
+    justifyContent: 'center',
+  },
+  text : {
+    color: '#fff',
+    fontFamily: 'TTNorms-Regular',
+    fontSize: 18,
+    paddingBottom: 6
+  },
+  container:{
+    // backgroundColor: '#fff',
+    padding: 10,
+    paddingHorizontal: 20,
   },
   gutiout : {
     flexDirection:'row',
     flexWrap: 'wrap',
-    backgroundColor: '#333',
-    padding: 10,
-    // borderRadius: 50,
-    paddingHorizontal: 20,
-    justifyContent: 'center'
-  },
-  myout : {
-    position : 'absolute',
-    bottom: 50,
-    // width:100,
-    // height:100,
-    flexDirection:'row',
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 50,
-    paddingHorizontal: 20
   },
 
     image: {
