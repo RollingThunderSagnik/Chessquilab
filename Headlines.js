@@ -9,10 +9,26 @@ class Headline extends Component {
     state = {
 
     }
+
     constructor(props)
     {
         super(props);
         this.state.width = this.props.width;
+        this.state.message = this.getMessage(this.props.message);
+    }
+
+    getMessage(x)
+    {
+        switch(x)
+        {
+            case 2: return 'NAXALITE TEEN APPREHENDED BY POLICE, TEN CARTONS OF AMMUNITION FOUND';
+        }
+    }
+
+    componentDidUpdate() {
+        this.setState({
+            message : this.getMessage(this.props.message)
+        });
     }
 
     render()
@@ -21,14 +37,14 @@ class Headline extends Component {
         <View style={{...styles.box, width: this.state.width}}>
             <TextTicker 
                 style={styles.text}
-                // duration={3000}
-                loop
+                loop={false}
                 scrollSpeed={300}
-                animationType={'scroll'}
+                animationType={'auto'}
                 repeatSpacer={10}
                 scroll
+                onMarqueeComplete={this.start}
                 >
-                {'NAXALITE TEEN APPREHENDED BY POLICE, TEN CARTONS OF AMMUNITION FOUND'}
+                {this.state.message}
             </TextTicker>           
         </View>);
     }

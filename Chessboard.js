@@ -1032,7 +1032,7 @@ class Chessboard extends Component {
       position:'absolute',
       top: (sHeight-chsize)/2+chsize
     }}>
-      <Headline width={chsize}></Headline>
+      <Headline width={chsize} message={2} ></Headline>
     </View>
 
     </>
